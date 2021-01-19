@@ -19,6 +19,8 @@ trait VaadinModule extends JavaModule {
    */
   def nodeVersion: T[Option[String]] = None
 
+  def vaadinProductionMode: T[Boolean] = false
+
   def frontendToolsIvyDeps: T[Agg[Dep]] = T {
     Agg(
       ivy"${Versions.millVaadinWorkerImplIvyDep}",
@@ -26,22 +28,9 @@ trait VaadinModule extends JavaModule {
     )
   }
 
-//  def tokenFile: T[PathRef] = T {
-//
-//
-//    val tokenFile = T.dest / ""
-//    os.write()
-//
-//  }
-
-//  case class VaadinFrontend(webpackDir: PathRef)
-//  object VaadinFrontend {
-//    implicit val jsonFormatter: upickle.default.ReadWriter[VaadinFrontend] = upickle.default.macroRW
-//  }
-
   def frontendDir: Source = T.source(millSourcePath / "frontend")
 
-  def generatorWorkDir: T[PathRef] = T.persistent { PathRef(T.dest) }
+  def pnpmEnable: T[Boolean] = false
 
   def prepareFrontend: T[PreparedFrontend] = T {
     val dest = T.dest
@@ -58,7 +47,13 @@ trait VaadinModule extends JavaModule {
       moduleCompileClasspath = compileClasspath().toSeq,
       moduleRuntimeClasspath = runClasspath(),
       useDeprecatedV14Bootstrapping = true,
-      requireHomeNodeExec = false
+      requireHomeNodeExec = false,
+      productionMode = vaadinProductionMode(),
+      // TODO: should be the outcome of the task, but to stay compatible with vaadin tools,
+      // we sill need to have it there
+      generatedFrontendDir = millSourcePath / "target" / "frontend",
+      javaSourceDir = sources(),
+      pnpmEnable = pnpmEnable()
     )
   }
 

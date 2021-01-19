@@ -16,7 +16,11 @@ case class VaadinToolsConfig(
     moduleCompileClasspath: Seq[PathRef],
     moduleRuntimeClasspath: Seq[PathRef],
     useDeprecatedV14Bootstrapping: Boolean,
-    requireHomeNodeExec: Boolean = false
+    requireHomeNodeExec: Boolean,
+    productionMode: Boolean,
+    generatedFrontendDir: Path,
+    javaSourceDir: Seq[PathRef],
+    pnpmEnable: Boolean
 )
 
 object VaadinToolsConfig {
@@ -28,7 +32,8 @@ object VaadinToolsConfig {
 }
 
 case class PreparedFrontend(
-    generatedFrontendDir: PathRef
+    generatedFrontendDir: PathRef,
+    classesDir: PathRef
 )
 object PreparedFrontend {
   implicit val jsonFormatter: upickle.default.ReadWriter[PreparedFrontend] = upickle.default.macroRW
