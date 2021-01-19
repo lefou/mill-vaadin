@@ -2,6 +2,7 @@
 import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest_mill0.9:0.4.0-5-9dce73`
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version_mill0.9:0.1.0`
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`
+import mill.api.Loose
 import mill.define.Sources
 
 // imports
@@ -26,11 +27,11 @@ trait Deps {
   val millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
   val millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
   val osLib = ivy"com.lihaoyi::os-lib:0.6.3"
+  val reflections = ivy"org.reflections:reflections:0.9.11"
   val scalaTest = ivy"org.scalatest::scalatest:3.2.3"
   val scoverageVersion = "1.4.1"
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
   val utilsFunctional = ivy"de.tototec:de.tototec.utils.functional:2.0.1"
-
   val vaadinFlowServer = ivy"com.vaadin:flow-server:5.0.2"
 }
 object Deps_0_9 extends Deps {
@@ -108,6 +109,9 @@ class VaadinCross(val millPlatform: String) extends Module {
         deps.vaadinFlowServer
       )
     }
+    override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg(
+      deps.reflections
+    )
   }
 
   object main extends MillVaadinModule {

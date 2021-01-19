@@ -13,5 +13,6 @@ object main extends VaadinModule {
 }
 
 def verify(): Command[Unit] = T.command {
+  val res = main.prepareFrontend()
   ()
 }
