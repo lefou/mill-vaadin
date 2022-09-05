@@ -1,0 +1,4 @@
+repo: https://github.com/vaadin/skeleton-starter-flow
+branch: https://github.com/vaadin/skeleton-starter-flow/tree/v23
+commit: https://github.com/vaadin/skeleton-starter-flow/commit/4ebb97c42334e3b1fb8235736c2ecf11018656b5
+
