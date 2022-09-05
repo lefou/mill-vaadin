@@ -11,7 +11,7 @@ import de.tobiasroeser.mill.integrationtest._
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 import mill._
 import mill.api.Loose
-import mill.contrib.scoverage.ScoverageModule
+import mill.contrib.scoverage.{ScoverageModule, ScoverageReport}
 import mill.define.{Module, Target, Task}
 import mill.main.Tasks
 import mill.scalalib._
@@ -33,7 +33,8 @@ trait Deps {
   val scoverageVersion = "2.0.2"
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
   val utilsFunctional = ivy"de.tototec:de.tototec.utils.functional:2.0.1"
-  val vaadinFlowServer = ivy"com.vaadin:flow-server:5.0.2"
+  val vaadinFlowServer = ivy"com.vaadin:flow-server:23.2.0"
+  val vaadinFlowPluginBase = ivy"com.vaadin:flow-plugin-base:23.2.0"
 }
 object Deps_0_10 extends Deps {
   override def millVersion = "0.10.0"
@@ -82,8 +83,7 @@ class VaadinCross(val millPlatform: String) extends Module {
     override def compileIvyDeps: T[Loose.Agg[Dep]] = T {
       Agg(
         deps.millMainApi,
-        deps.osLib,
-        deps.vaadinFlowServer
+        deps.osLib
       )
     }
   }
@@ -95,7 +95,8 @@ class VaadinCross(val millPlatform: String) extends Module {
       Agg(
         deps.osLib,
         deps.millMainApi,
-        deps.vaadinFlowServer
+        deps.vaadinFlowServer,
+        deps.vaadinFlowPluginBase
       )
     }
     override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg(
@@ -115,12 +116,10 @@ class VaadinCross(val millPlatform: String) extends Module {
       deps.millScalalib
     )
 
-    object test extends Tests {
+    object test extends Tests with TestModule.ScalaTest {
       override def ivyDeps = Agg(
         deps.scalaTest
       )
-
-      def testFrameworks = Seq("org.scalatest.tools.Framework")
     }
 
     override def generatedSources: Target[Seq[PathRef]] = T {
@@ -144,6 +143,8 @@ class VaadinCross(val millPlatform: String) extends Module {
            |  val millVaadinWorkerImplIvyDep = "${worker.pomSettings().organization}:${worker.artifactId()}:${worker
           .publishVersion()}"
            |  val buildTimeFlowServerVersion = "${deps.vaadinFlowServer.dep.version}"
+           |  val vaadinFlowPluginBaseDep ="${deps.vaadinFlowPluginBase.dep.module.organization.value}:${deps.vaadinFlowPluginBase.dep.module.name.value}:${deps.vaadinFlowPluginBase.dep.version}"
+           |
            |}
            |""".stripMargin
 
@@ -187,6 +188,19 @@ class VaadinCross(val millPlatform: String) extends Module {
         jar zip (p.sourceJar zip (p.docJar zip (p.pom zip (p.ivy zip p.artifactMetadata))))
       }
 
+    override def perTestResources = T.sources {
+      Seq(generatedSharedSrc())
+    }
+
+    def generatedSharedSrc = T {
+      os.write(
+        T.dest / "shared.sc",
+        s"""import $$ivy.`org.scoverage::scalac-scoverage-runtime:${deps.scoverageVersion}`
+           |""".stripMargin
+      )
+      PathRef(T.dest)
+    }
+
   }
 
 }
@@ -204,4 +218,9 @@ object P extends Module {
     target
   }
 
+}
+
+object scoverage extends ScoverageReport {
+  override def scoverageVersion = Deps_0_10.scoverageVersion
+  override def scalaVersion: T[String] = Deps_0_10.scalaVersion
 }

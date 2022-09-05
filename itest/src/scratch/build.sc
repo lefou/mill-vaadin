@@ -1,5 +1,6 @@
 import $exec.plugins
-import $ivy.`org.scoverage::scalac-scoverage-runtime:1.4.1`
+import $exec.shared
+
 import mill._
 import mill.define.Command
 import mill.scalalib._
@@ -13,6 +14,7 @@ object main extends VaadinModule {
 }
 
 def verify(): Command[Unit] = T.command {
-  val res = main.prepareFrontend()
+  val res = main.vaadinPrepareFrontend()()
+  println(s"res: ${res}")
   ()
 }
