@@ -1,11 +1,12 @@
 // mill plugins
-import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest_mill0.9:0.4.0-5-9dce73`
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version_mill0.9:0.1.0`
-import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`
+import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.6.1`
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.2.0`
+import $ivy.`com.lihaoyi::mill-contrib-scoverage:`
+
+// imports
 import mill.api.Loose
 import mill.define.Sources
 
-// imports
 import de.tobiasroeser.mill.integrationtest._
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 import mill._
@@ -29,31 +30,19 @@ trait Deps {
   val osLib = ivy"com.lihaoyi::os-lib:0.6.3"
   val reflections = ivy"org.reflections:reflections:0.9.11"
   val scalaTest = ivy"org.scalatest::scalatest:3.2.3"
-  val scoverageVersion = "1.4.1"
+  val scoverageVersion = "2.0.2"
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
   val utilsFunctional = ivy"de.tototec:de.tototec.utils.functional:2.0.1"
   val vaadinFlowServer = ivy"com.vaadin:flow-server:5.0.2"
 }
-object Deps_0_9 extends Deps {
-  override def millVersion = "0.9.3"
-  override def millPlatform = "0.9"
-  override def scalaVersion = "2.13.4"
-  override def testWithMill = Seq("0.9.4", "0.9.3")
-}
-object Deps_0_7 extends Deps {
-  override def millVersion = "0.7.0"
-  override def millPlatform = "0.7"
-  override def scalaVersion = "2.13.2"
-  override def testWithMill = Seq("0.8.0", "0.7.4", "0.7.3", "0.7.2", "0.7.1", "0.7.0")
-}
-object Deps_0_6 extends Deps {
-  override def millVersion = "0.6.0"
-  override def millPlatform = "0.6"
-  override def scalaVersion = "2.12.10"
-  override def testWithMill = Seq("0.6.3", "0.6.2", "0.6.1", "0.6.0")
+object Deps_0_10 extends Deps {
+  override def millVersion = "0.10.0"
+  override def millPlatform = "0.10"
+  override def scalaVersion = "2.13.8"
+  override def testWithMill = Seq("0.10.7", millVersion)
 }
 
-val millApiVersions = Seq(Deps_0_9, Deps_0_7, Deps_0_6).map(x => x.millPlatform -> x)
+val millApiVersions = Seq(Deps_0_10).map(x => x.millPlatform -> x)
 
 val millItestVersions = millApiVersions.flatMap { case (_, d) => d.testWithMill.map(_ -> d) }
 
