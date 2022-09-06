@@ -13,14 +13,21 @@ object Deps {
 
 
 object main extends MavenModule with VaadinModule {
-  def millSourcePath = super.millSourcePath / os.up
+  override def millSourcePath = super.millSourcePath / os.up
   override def ivyDeps: T[Agg[Dep]] = Agg(
     ivy"com.vaadin:vaadin:${Deps.vaadinVersion}"
   )
 }
 
-def verify(): Command[Unit] = T.command {
+def verifyPrepareFrontend(): Command[Unit] = T.command {
   val res = main.vaadinPrepareFrontend()()
+  println(s"res: ${res}")
+  ()
+}
+
+
+def verifyBuildFrontend(): Command[Unit] = T.command {
+  val res = main.vaadinBuildFrontend()()
   println(s"res: ${res}")
   ()
 }

@@ -11,19 +11,32 @@ import java.net.{URL, URLClassLoader}
 
 trait VaadinModule extends JavaModule {
 
-  def millVaadinConfig(outputPath: os.SubPath): Task[MillVaadinConfig] = T.task {
+  def vaadinBuildPath: T[PathRef] = T.persistent {
+    PathRef(T.dest)
+  }
+
+  def millVaadinConfig(): Task[MillVaadinConfig] = T.task {
+    val dest = vaadinBuildPath().path
     new MillVaadinConfig {
       override def projectBasePath: Path = millSourcePath
-      override def buildPath: Path = T.dest
+      override def buildPath: Path = dest
       override def classpath: Seq[Path] = runClasspath().map(_.path)
       override def log: Logger = T.ctx.log
     }
   }
 
   def vaadinPrepareFrontend(): Command[Unit] = T.command {
-    val config = millVaadinConfig(os.sub / "classes")()
-    val worker = frontendToolsWorker()
+    val config = millVaadinConfig()()
+    val worker = vaadinToolsWorker()
     worker.prepareFrontend(config)
+    ()
+  }
+
+  def vaadinBuildFrontend(): Command[Unit] = T.command {
+    vaadinPrepareFrontend()
+    val config = millVaadinConfig()()
+    val worker = vaadinToolsWorker()
+    worker.buildFrontend(config)
     ()
   }
 
@@ -36,11 +49,8 @@ trait VaadinModule extends JavaModule {
 
 //  def vaadinProductionMode: T[Boolean] = false
 
-  def frontendToolsIvyDeps: T[Agg[Dep]] = T {
-    Agg(
-      ivy"${Versions.millVaadinWorkerImplIvyDep}",
-      ivy"${Versions.vaadinFlowPluginBaseDep}"
-    )
+  def vaadinToolsIvyDeps: T[Agg[Dep]] = T {
+    Agg.from(Versions.workerIvyDeps.map(d => ivy"${d}"))
   }
 //
 //  def frontendDir: Source = T.source(millSourcePath / "frontend")
@@ -72,15 +82,18 @@ trait VaadinModule extends JavaModule {
 //    )
 //  }
 
-  def frontendToolsClasspath: T[Agg[PathRef]] = T {
-    resolveDeps(frontendToolsIvyDeps)()
+  def vaadinToolsClasspath: T[Agg[PathRef]] = T {
+    resolveDeps(vaadinToolsIvyDeps)()
   }
 
-  def frontendToolsWorker: Worker[VaadinToolsWorker] = T.worker {
+  def vaadinToolsWorker: Worker[VaadinToolsWorker] = T.worker {
 //    val workerDir = generatorWorkDir().path
 
     val cl =
-      new URLClassLoader(frontendToolsClasspath().map(_.path.toIO.toURI().toURL()).toArray[URL], getClass().getClassLoader())
+      new URLClassLoader(
+        vaadinToolsClasspath().map(_.path.toIO.toURI().toURL()).toArray[URL],
+        getClass().getClassLoader()
+      )
     val className =
       classOf[VaadinToolsWorker].getPackage().getName() + ".impl." + classOf[VaadinToolsWorker].getSimpleName() + "Impl"
     val impl = cl.loadClass(className)
@@ -97,5 +110,7 @@ trait VaadinModule extends JavaModule {
     }
     worker
   }
+
+  def vaadinToolsDebug: T[Boolean] = T{ true }
 
 }

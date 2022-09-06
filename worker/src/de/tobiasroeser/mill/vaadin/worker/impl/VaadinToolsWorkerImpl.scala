@@ -10,6 +10,13 @@ class VaadinToolsWorkerImpl() extends VaadinToolsWorker {
     BuildFrontendUtil.prepareFrontend(adapter)
   }
 
+  def buildFrontend(config: MillVaadinConfig): Unit = {
+    os.makeDir.all(config.generatedPath)
+    val adapter = new MillVaadinPluginAdapter(config)
+    BuildFrontendUtil.runNodeUpdater(adapter)
+    BuildFrontendUtil.runFrontendBuild(adapter)
+  }
+
 //
 //  def defaultNodeVersion = FrontendTools.DEFAULT_NODE_VERSION
 //  def defaultDownloadRoot = NodeInstaller.DEFAULT_NODEJS_DOWNLOAD_ROOT

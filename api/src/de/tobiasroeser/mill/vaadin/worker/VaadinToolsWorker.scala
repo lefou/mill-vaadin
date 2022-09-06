@@ -6,6 +6,9 @@ import os.Path
 trait VaadinToolsWorker {
   //  def prepareFrontend(config: VaadinToolsConfig, destDir: os.Path, ctx: Ctx.Log): Result[PreparedFrontend]
   def prepareFrontend(config: MillVaadinConfig): Unit
+
+  def buildFrontend(config: MillVaadinConfig): Unit
+
 }
 
 case class VaadinToolsConfig(
@@ -49,6 +52,7 @@ trait MillVaadinConfig {
   def buildPath: os.Path
   def vaadinBuildOutputPath: os.Path = buildPath / "classes"
   def resourcePath: os.Path = projectBasePath / "src" / "main" / "resources"
+  def frontendResourcePath: os.Path = resourcePath / "META-INF" / "resources" / "frontend"
   def applicationPropertiesPath: os.Path = resourcePath / "application.properties"
   def sourcePath: os.Path = projectBasePath / "src" / "main" / "java"
   def frontendPath: os.Path = projectBasePath / "frontend"
@@ -58,5 +62,7 @@ trait MillVaadinConfig {
   def productionMode: Boolean = false
   def classpath: Seq[os.Path]
   def log: Logger
-  def webpackOutPath: os.Path = vaadinBuildOutputPath / "META_INF" / "VAADIN" / "webapp"
+  def webpackOutPath: os.Path = vaadinBuildOutputPath / "META-INF" / "VAADIN" / "webapp"
+  def resourceOutputPath: os.Path =   vaadinBuildOutputPath / "META-INF" / "VAADIN"
 }
+

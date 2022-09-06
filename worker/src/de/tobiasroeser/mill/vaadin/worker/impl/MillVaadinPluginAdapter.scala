@@ -10,7 +10,7 @@ import java.nio.file.Path
 import java.util
 import scala.jdk.CollectionConverters.{SeqHasAsJava, SetHasAsJava}
 
-class MillVaadinPluginAdapter(config: MillVaadinConfig) extends PluginAdapterBase {
+class MillVaadinPluginAdapter(config: MillVaadinConfig) extends PluginAdapterBase with PluginAdapterBuild {
 
   // PluginAdapterBase
 
@@ -46,18 +46,16 @@ class MillVaadinPluginAdapter(config: MillVaadinConfig) extends PluginAdapterBas
   override def productionMode(): Boolean = config.productionMode
   override def projectBaseDirectory(): Path = config.projectBasePath.toNIO
   override def requireHomeNodeExec(): Boolean = false
-  override def servletResourceOutputDirectory(): File = ???
+  override def servletResourceOutputDirectory(): File = config.resourceOutputPath.toIO
   override def webpackOutputDirectory(): File = config.webpackOutPath.toIO
   override def buildFolder(): String = config.buildPath.toString
   override def postinstallPackages(): util.List[String] = List().asJava
 
-}
+  // PluginAdapterBuild
 
-//  // PluginAdapterBuild
-//
-//  override def frontendResourcesDirectory(): File = ???
-//  override def generateBundle(): Boolean = ???
-//  override def generateEmbeddableWebComponents(): Boolean = ???
-//  override def optimizeBundle(): Boolean = ???
-//  override def runNpmInstall(): Boolean = ???
-//}
+  override def frontendResourcesDirectory(): File = config.frontendResourcePath.toIO
+  override def generateBundle(): Boolean = true
+  override def generateEmbeddableWebComponents(): Boolean = true
+  override def optimizeBundle(): Boolean = true
+  override def runNpmInstall(): Boolean = true
+}

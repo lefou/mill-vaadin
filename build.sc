@@ -10,10 +10,8 @@ import mill.define.Sources
 import de.tobiasroeser.mill.integrationtest._
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 import mill._
-import mill.api.Loose
 import mill.contrib.scoverage.{ScoverageModule, ScoverageReport}
 import mill.define.{Module, Target, Task}
-import mill.main.Tasks
 import mill.scalalib._
 import mill.scalalib.publish._
 
@@ -32,6 +30,7 @@ trait Deps {
   val scalaTest = ivy"org.scalatest::scalatest:3.2.3"
   val scoverageVersion = "2.0.2"
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
+  val slf4jSimple = ivy"org.slf4j:slf4j-simple:1.7.25"
   val utilsFunctional = ivy"de.tototec:de.tototec.utils.functional:2.0.1"
   val vaadinFlowServer = ivy"com.vaadin:flow-server:23.2.0"
   val vaadinFlowPluginBase = ivy"com.vaadin:flow-plugin-base:23.2.0"
@@ -126,6 +125,11 @@ class VaadinCross(val millPlatform: String) extends Module {
       super.generatedSources() :+ versionFile()
     }
 
+    private def formatIvyDep(dep: Dep): String = {
+      val module = dep.dep.module
+      s"${module.organization.value}:${module.name.value}:${dep.dep.version}"
+    }
+
     def versionFile: Target[PathRef] = T {
       val dest = T.ctx().dest
       val body =
@@ -141,10 +145,15 @@ class VaadinCross(val millPlatform: String) extends Module {
            |  val buildTimeMillVersion = "${deps.millVersion}"
            |  /** The ivy dependency holding the mill kotlin worker impl. */
            |  val millVaadinWorkerImplIvyDep = "${worker.pomSettings().organization}:${worker.artifactId()}:${worker
-          .publishVersion()}"
+            .publishVersion()}"
            |  val buildTimeFlowServerVersion = "${deps.vaadinFlowServer.dep.version}"
-           |  val vaadinFlowPluginBaseDep ="${deps.vaadinFlowPluginBase.dep.module.organization.value}:${deps.vaadinFlowPluginBase.dep.module.name.value}:${deps.vaadinFlowPluginBase.dep.version}"
-           |
+           |  val vaadinFlowPluginBaseDep ="${formatIvyDep(deps.vaadinFlowPluginBase)}"
+           |  val workerIvyDeps = Seq(
+           |    "${worker.pomSettings().organization}:${worker.artifactId()}:${worker.publishVersion()}",
+           |    "${formatIvyDep(deps.vaadinFlowPluginBase)}",
+           |    "${formatIvyDep(deps.slf4j)}",
+           |    "${formatIvyDep(deps.slf4jSimple)}"
+           |  )
            |}
            |""".stripMargin
 
@@ -165,7 +174,16 @@ class VaadinCross(val millPlatform: String) extends Module {
     override def pluginsUnderTest = Seq(main)
     override def temporaryIvyModules = Seq(api, worker)
 
-    override def testTargets: T[Seq[String]] = T { Seq("-d", "verify") }
+    override def testInvocations: Target[Seq[(PathRef, Seq[TestInvocation.Targets])]] =
+      testCases().map { tc =>
+        tc -> (tc.path.last match {
+          case "skeleton-starter-flow-v23" => Seq(TestInvocation.Targets(targets = Seq("-d", "verifyPrepareFrontend")))
+          case "skeleton-starter-flow-v23_2" => Seq(TestInvocation.Targets(Seq("-d", "verifyBuildFrontend")))
+          case _ => Seq(TestInvocation.Targets(Seq("verify")))
+        })
+      }
+
+    def useScoverageJars: T[Boolean] = false
 
     // Use scoverage enhanced jars to collect coverage data while running tests
     override def temporaryIvyModulesDetails
@@ -173,7 +191,7 @@ class VaadinCross(val millPlatform: String) extends Module {
       Target.traverse(temporaryIvyModules) { p =>
         val jar = p match {
           case p: ScoverageModule => p.scoverage.jar
-          case p                  => p.jar
+          case p => p.jar
         }
         jar zip (p.sourceJar zip (p.docJar zip (p.pom zip (p.ivy zip p.artifactMetadata))))
       }
@@ -183,7 +201,7 @@ class VaadinCross(val millPlatform: String) extends Module {
       Target.traverse(pluginsUnderTest) { p =>
         val jar = p match {
           case p: ScoverageModule => p.scoverage.jar
-          case p                  => p.jar
+          case p => p.jar
         }
         jar zip (p.sourceJar zip (p.docJar zip (p.pom zip (p.ivy zip p.artifactMetadata))))
       }
@@ -200,7 +218,6 @@ class VaadinCross(val millPlatform: String) extends Module {
       )
       PathRef(T.dest)
     }
-
   }
 
 }
