@@ -11,17 +11,32 @@ import java.net.{URL, URLClassLoader}
 
 trait VaadinModule extends JavaModule {
 
+  private val buildPath = millSourcePath / "target"
+
   def vaadinBuildPath: T[PathRef] = T.persistent {
-    PathRef(T.dest)
+    val dest = buildPath
+    T.log.info(s"vaadin build path: ${dest}")
+    PathRef(dest)
   }
 
   def millVaadinConfig(): Task[MillVaadinConfig] = T.task {
     val dest = vaadinBuildPath().path
-    new MillVaadinConfig {
+    val config = new MillVaadinConfig {
+      override def compatTargetDir: Path = dest
       override def projectBasePath: Path = millSourcePath
-      override def buildPath: Path = dest
+      override def buildFolder: String = "target"
       override def classpath: Seq[Path] = runClasspath().map(_.path)
       override def log: Logger = T.ctx.log
+
+    }
+    config
+  }
+
+  def vaadinClean(): Command[Unit] = T.command {
+    val delPath = buildPath.relativeTo(millSourcePath)
+    if(os.exists(buildPath) && delPath.ups == 0 && buildPath != millSourcePath) {
+      T.log.errorStream.println(s"Removing ${buildPath}")
+      os.remove.all(buildPath)
     }
   }
 
@@ -33,7 +48,7 @@ trait VaadinModule extends JavaModule {
   }
 
   def vaadinBuildFrontend(): Command[Unit] = T.command {
-    vaadinPrepareFrontend()
+    vaadinPrepareFrontend()()
     val config = millVaadinConfig()()
     val worker = vaadinToolsWorker()
     worker.buildFrontend(config)
@@ -52,35 +67,6 @@ trait VaadinModule extends JavaModule {
   def vaadinToolsIvyDeps: T[Agg[Dep]] = T {
     Agg.from(Versions.workerIvyDeps.map(d => ivy"${d}"))
   }
-//
-//  def frontendDir: Source = T.source(millSourcePath / "frontend")
-//
-//  def pnpmEnable: T[Boolean] = false
-//
-//  def prepareFrontend: T[PreparedFrontend] = T {
-//    val dest = T.dest
-//    frontendToolsWorker().prepareFrontend(vaadinToolsConfig(), dest, T.ctx)
-//  }
-//
-//  def vaadinToolsConfig: T[VaadinToolsConfig] = T {
-//    VaadinToolsConfig(
-//      moduleDir = millSourcePath,
-//      npmFolder = millSourcePath,
-//      nodeVersion = nodeVersion(),
-//      nodeDownloadRoot = None,
-//      frontendDir = frontendDir(),
-//      moduleCompileClasspath = compileClasspath().toSeq,
-//      moduleRuntimeClasspath = runClasspath(),
-//      useDeprecatedV14Bootstrapping = true,
-//      requireHomeNodeExec = false,
-//      productionMode = vaadinProductionMode(),
-//      // TODO: should be the outcome of the task, but to stay compatible with vaadin tools,
-//      // we sill need to have it there
-//      generatedFrontendDir = millSourcePath / "target" / "frontend",
-//      javaSourceDir = sources(),
-//      pnpmEnable = pnpmEnable()
-//    )
-//  }
 
   def vaadinToolsClasspath: T[Agg[PathRef]] = T {
     resolveDeps(vaadinToolsIvyDeps)()
@@ -111,6 +97,6 @@ trait VaadinModule extends JavaModule {
     worker
   }
 
-  def vaadinToolsDebug: T[Boolean] = T{ true }
+  def vaadinToolsDebug: T[Boolean] = T { true }
 
 }

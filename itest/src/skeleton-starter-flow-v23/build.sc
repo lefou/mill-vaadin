@@ -31,3 +31,4 @@ def verifyBuildFrontend(): Command[Unit] = T.command {
   println(s"res: ${res}")
   ()
 }
+

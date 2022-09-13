@@ -21,6 +21,8 @@ trait Deps {
   def scalaVersion: String
   def testWithMill: Seq[String]
 
+  val vaadinVersion = "23.2.0"
+
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
   val millMainApi = ivy"com.lihaoyi::mill-main-api:${millVersion}"
   val millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
@@ -32,8 +34,8 @@ trait Deps {
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
   val slf4jSimple = ivy"org.slf4j:slf4j-simple:1.7.25"
   val utilsFunctional = ivy"de.tototec:de.tototec.utils.functional:2.0.1"
-  val vaadinFlowServer = ivy"com.vaadin:flow-server:23.2.0"
-  val vaadinFlowPluginBase = ivy"com.vaadin:flow-plugin-base:23.2.0"
+  val vaadinFlowServer = ivy"com.vaadin:flow-server:${vaadinVersion}"
+  val vaadinFlowPluginBase = ivy"com.vaadin:flow-plugin-base:${vaadinVersion}"
 }
 object Deps_0_10 extends Deps {
   override def millVersion = "0.10.0"
@@ -56,7 +58,7 @@ class VaadinCross(val millPlatform: String) extends Module {
   trait MillVaadinModule extends CrossScalaModule with PublishModule with ScoverageModule {
     override def millSourcePath = baseDir / millOuterCtx.segment.pathSegments.last
     override def crossScalaVersion = deps.scalaVersion
-    override def publishVersion: T[String] = VcsVersion.vcsState().format()
+    override def publishVersion: T[String] = "0.0.1-SNAPSHOT" // VcsVersion.vcsState().format()
     override def artifactSuffix: T[String] = s"_mill${millPlatform}_${artifactScalaVersion()}"
 
     override def javacOptions = Seq("-source", "1.8", "-target", "1.8", "-encoding", "UTF-8")
@@ -177,9 +179,13 @@ class VaadinCross(val millPlatform: String) extends Module {
     override def testInvocations: Target[Seq[(PathRef, Seq[TestInvocation.Targets])]] =
       testCases().map { tc =>
         tc -> (tc.path.last match {
-          case "skeleton-starter-flow-v23" => Seq(TestInvocation.Targets(targets = Seq("-d", "verifyPrepareFrontend")))
-          case "skeleton-starter-flow-v23_2" => Seq(TestInvocation.Targets(Seq("-d", "verifyBuildFrontend")))
-          case _ => Seq(TestInvocation.Targets(Seq("verify")))
+//          case "skeleton-starter-flow-v23" => Seq(TestInvocation.Targets(targets = Seq("-d", "verifyPrepareFrontend")))
+//          case "skeleton-starter-flow-v23_2" => Seq(TestInvocation.Targets(Seq("-d", "verifyBuildFrontend")))
+          case "skeleton-starter-flow-spring-v23.2" => Seq(
+            TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
+          )
+          case _ => Seq()
         })
       }
 
