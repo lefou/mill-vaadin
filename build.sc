@@ -184,6 +184,8 @@ class VaadinCross(val millPlatform: String) extends Module {
           case "skeleton-starter-flow-spring-v23.2" => Seq(
             TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
             TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
+            TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
           )
           case _ => Seq()
         })
@@ -213,13 +215,17 @@ class VaadinCross(val millPlatform: String) extends Module {
       }
 
     override def perTestResources = T.sources {
-      Seq(generatedSharedSrc())
+      Seq(
+        PathRef(millSourcePath / "resources"),
+        generatedSharedSrc()
+      )
     }
 
     def generatedSharedSrc = T {
       os.write(
         T.dest / "shared.sc",
         s"""import $$ivy.`org.scoverage::scalac-scoverage-runtime:${deps.scoverageVersion}`
+           |import $$file.helper
            |""".stripMargin
       )
       PathRef(T.dest)

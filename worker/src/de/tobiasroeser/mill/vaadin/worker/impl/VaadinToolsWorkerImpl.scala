@@ -22,6 +22,10 @@ class VaadinToolsWorkerImpl() extends VaadinToolsWorker {
     BuildFrontendUtil.runFrontendBuild(adapter)
   }
 
+  def cleanFrontend(config: MillVaadinConfig)(implicit ctx: Ctx): Unit = {
+
+  }
+
 //
 //  def defaultNodeVersion = FrontendTools.DEFAULT_NODE_VERSION
 //  def defaultDownloadRoot = NodeInstaller.DEFAULT_NODEJS_DOWNLOAD_ROOT

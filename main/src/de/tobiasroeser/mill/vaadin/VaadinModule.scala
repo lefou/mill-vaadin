@@ -32,7 +32,7 @@ trait VaadinModule extends JavaModule {
     config
   }
 
-  def vaadinClean(): Command[Unit] = T.command {
+  def vaadinCleanFrontend(): Command[Unit] = T.command {
     val delPath = buildPath.relativeTo(millSourcePath)
     if(os.exists(buildPath) && delPath.ups == 0 && buildPath != millSourcePath) {
       T.log.errorStream.println(s"Removing ${buildPath}")

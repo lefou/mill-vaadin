@@ -7,4 +7,5 @@ trait VaadinToolsWorker {
 
   def buildFrontend(config: MillVaadinConfig)(implicit ctx: Ctx): Unit
 
+  def cleanFrontend(config: MillVaadinConfig)(implicit ctx: Ctx): Unit
 }
