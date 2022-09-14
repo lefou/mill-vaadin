@@ -2,12 +2,19 @@ package de.tobiasroeser.mill.vaadin
 
 import mill.{Agg, T}
 import mill.api.{Logger, PathRef}
-import mill.define.{Command, Source, Task, Worker}
+import mill.define.{Command, Input, Source, Task, Worker}
 import mill.scalalib.{Dep, DepSyntax, JavaModule}
 import de.tobiasroeser.mill.vaadin.worker.{MillVaadinConfig, PreparedFrontend, VaadinToolsConfig, VaadinToolsWorker}
 import os.Path
+import upickle.default.{ReadWriter, macroRW}
 
 import java.net.{URL, URLClassLoader}
+
+case class VaadinResult(classesDir: PathRef, productionMode: Boolean)
+
+object VaadinResult {
+  implicit val upickleRW: ReadWriter[VaadinResult] = macroRW[VaadinResult]
+}
 
 trait VaadinModule extends JavaModule {
 
@@ -19,40 +26,54 @@ trait VaadinModule extends JavaModule {
     PathRef(dest)
   }
 
-  def millVaadinConfig(): Task[MillVaadinConfig] = T.task {
+  def millVaadinConfig(prodMode: Task[Boolean]): Task[MillVaadinConfig] = T.task {
     val dest = vaadinBuildPath().path
     val config = new MillVaadinConfig {
       override def compatTargetDir: Path = dest
       override def projectBasePath: Path = millSourcePath
       override def buildFolder: String = "target"
-      override def classpath: Seq[Path] = runClasspath().map(_.path)
+      override def classpath: Seq[Path] = vaadinInputRunClasspath().map(_.path)
       override def log: Logger = T.ctx.log
-
+      override def productionMode: Boolean = prodMode()
     }
     config
   }
 
   def vaadinCleanFrontend(): Command[Unit] = T.command {
     val delPath = buildPath.relativeTo(millSourcePath)
-    if(os.exists(buildPath) && delPath.ups == 0 && buildPath != millSourcePath) {
+    if (os.exists(buildPath) && delPath.ups == 0 && buildPath != millSourcePath) {
       T.log.errorStream.println(s"Removing ${buildPath}")
       os.remove.all(buildPath)
     }
   }
 
-  def vaadinPrepareFrontend(): Command[Unit] = T.command {
-    val config = millVaadinConfig()()
-    val worker = vaadinToolsWorker()
-    worker.prepareFrontend(config)
-    ()
+  def vaadinPrepareFrontend(): Command[VaadinResult] = {
+    val config = millVaadinConfig(vaadinProductionMode)
+    T.command {
+      vaadinPrepareFrontendTask(config)()
+    }
   }
 
-  def vaadinBuildFrontend(): Command[Unit] = T.command {
-    vaadinPrepareFrontend()()
-    val config = millVaadinConfig()()
+  def vaadinPrepareFrontendTask(millVaadinConfig: Task[MillVaadinConfig]): Task[VaadinResult] = T.task {
+    val config = millVaadinConfig()
     val worker = vaadinToolsWorker()
+    worker.prepareFrontend(config)
+    VaadinResult(classesDir = PathRef(config.vaadinBuildOutputPath), config.productionMode)
+  }
+
+  def vaadinBuildFrontend(): Command[VaadinResult] = {
+    val config = millVaadinConfig(vaadinProductionMode)
+    T.command {
+      vaadinPrepareFrontend()()
+      vaadinBuildFrontendTask(config)()
+    }
+  }
+
+  def vaadinBuildFrontendTask(millVaadinConfig: Task[MillVaadinConfig]): Task[VaadinResult] = T.task {
+    val worker = vaadinToolsWorker()
+    val config = millVaadinConfig()
     worker.buildFrontend(config)
-    ()
+    VaadinResult(classesDir = PathRef(config.vaadinBuildOutputPath), config.productionMode)
   }
 
 //  /**
@@ -62,7 +83,9 @@ trait VaadinModule extends JavaModule {
 //   */
 //  def nodeVersion: T[Option[String]] = None
 
-//  def vaadinProductionMode: T[Boolean] = false
+  def vaadinProductionMode: Input[Boolean] = T.input {
+    Option(sys.props("vaadin.productionMode")).exists(p => p == "true")
+  }
 
   def vaadinToolsIvyDeps: T[Agg[Dep]] = T {
     Agg.from(Versions.workerIvyDeps.map(d => ivy"${d}"))
@@ -97,6 +120,16 @@ trait VaadinModule extends JavaModule {
     worker
   }
 
-  def vaadinToolsDebug: T[Boolean] = T { true }
+//  def vaadinToolsDebug: T[Boolean] = T { true }
+
+  def vaadinInputLocalClasspath: T[Seq[PathRef]] = super.localClasspath
+
+  override def localClasspath: T[Seq[PathRef]] = T {
+    super.localClasspath() ++ Seq(vaadinBuildFrontend()().classesDir)
+  }
+
+  def vaadinInputRunClasspath: T[Seq[PathRef]] = T {
+    vaadinInputLocalClasspath() ++ upstreamAssemblyClasspath()
+  }
 
 }
