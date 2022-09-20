@@ -1,0 +1,29 @@
+= Plugin to Build Vaadin Application with the Mill Build Tool
+
+This is an experimental project to build Vaadin Applications with the https://github.com/com-lihaoyi/mill[Mill Build Tool].
+
+== Early stage
+
+In this early stage we just try to build a Vaadin Application _somehow_.
+That means, we don't follow design concepts typically used in Mill, but instead re-use some shared Vaadin Build Tooling (also used by latest Maven and Gradle plugins) and also use the same directory layout. This means, _we can't use Mills efficient up-to-date checking and caching capabilities_.
+
+The reason for this is easy: Vaadin used various tools and also often changes these tools. Some of these tools are simple not designed for being used in isolation (e.g. node/npm/pnpm), and other still have some hardcoded path.
+
+Once we are able to build Vaadin applications in a robust way, I will try to move more and more parts into well-designed and isolated targets. This will be most likely a laborious and incremental path. Any contribution are very welcome!
+
+
+== Download
+
+
+== Configuration / Documentation
+
+To stay compatible with Gradle and Maven, our Vaadin project should have the same `src/main/{java,resources}`-layout. For convenience, you can use `mill.scalalib.MavenModule` instead of (or in addition too) `mill.scalalib.JavaModule` (or for Scala: `mill.scalalib.SbtModule` for `mill.scalalib.ScalaModule`), which already used this layout.
+
+To
+
+== License
+
+This project is published under the Apache License, Version 2.0.
+
+== Changelog
+
