@@ -1,7 +1,7 @@
 package de.tobiasroeser.mill.vaadin
 
 import mill.{Agg, T}
-import mill.api.{Logger, PathRef}
+import mill.api.{Logger, PathRef, experimental}
 import mill.define.{Command, Input, Source, Task, Worker}
 import mill.scalalib.{Dep, DepSyntax, JavaModule}
 import de.tobiasroeser.mill.vaadin.worker.{MillVaadinConfig, PreparedFrontend, VaadinToolsConfig, VaadinToolsWorker}
@@ -20,13 +20,33 @@ trait VaadinModule extends JavaModule {
 
   private val buildPath = millSourcePath / "target"
 
-  def vaadinBuildPath: T[PathRef] = T.persistent {
+  def vaadinFrontend: Source = T.source(millSourcePath / "frontend")
+
+  private def vaadinBuildPath: T[PathRef] = T.persistent {
     val dest = buildPath
-    T.log.info(s"vaadin build path: ${dest}")
+    val stateFile = dest / ".mill-vaadin.json"
+    val prevProdMode = if (os.exists(stateFile)) {
+      val state = ujson.read(os.read(stateFile))
+      Option(state.obj("productionMode").bool)
+    } else None
+    val prodMode = vaadinProductionMode()
+
+    if (Some(prodMode) != prevProdMode) {
+      T.log.errorStream.println(s"Cleaning vaadin build path ${dest} ...")
+      os.remove.all(dest)
+      os.makeDir.all(dest)
+      os.write(stateFile, ujson.write(ujson.Obj("productionMode" -> ujson.Bool(prodMode)), indent = 2))
+    } else {
+      T.log.errorStream.println(s"Using vaadin build path: ${dest}")
+    }
+
     PathRef(dest)
   }
 
   def millVaadinConfig(prodMode: Task[Boolean]): Task[MillVaadinConfig] = T.task {
+    val frontend = vaadinFrontend().path
+    val res = resources().map(_.path)
+    if (res.size != 1) { T.log.error(s"Not exactly one resource location defined. Using just the first: ${res.headOption.getOrElse("")}") }
     val dest = vaadinBuildPath().path
     val config = new MillVaadinConfig {
       override def compatTargetDir: Path = dest
@@ -35,6 +55,8 @@ trait VaadinModule extends JavaModule {
       override def classpath: Seq[Path] = vaadinInputRunClasspath().map(_.path)
       override def log: Logger = T.ctx.log
       override def productionMode: Boolean = prodMode()
+      override def frontendPath: Path = frontend
+      override def resourcePath: Path = res.headOption.getOrElse(super.resourcePath)
     }
     config
   }
@@ -124,12 +146,21 @@ trait VaadinModule extends JavaModule {
 
   def vaadinInputLocalClasspath: T[Seq[PathRef]] = super.localClasspath
 
+  @experimental
+  def vaadinPrepareLocalClasspath: T[Seq[PathRef]] = T {
+    vaadinInputLocalClasspath() ++ Seq(vaadinPrepareFrontend()().classesDir)
+  }
+
+  @experimental
+  def vaadinBuildLocalClasspath: T[Seq[PathRef]] = T {
+    vaadinInputLocalClasspath() ++ Seq(vaadinBuildFrontend()().classesDir)
+  }
+
   override def localClasspath: T[Seq[PathRef]] = T {
-    super.localClasspath() ++ Seq(vaadinBuildFrontend()().classesDir)
+    vaadinPrepareLocalClasspath()
   }
 
   def vaadinInputRunClasspath: T[Seq[PathRef]] = T {
     vaadinInputLocalClasspath() ++ upstreamAssemblyClasspath()
   }
-
 }
