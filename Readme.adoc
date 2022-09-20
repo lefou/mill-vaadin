@@ -1,4 +1,5 @@
 = Plugin to Build Vaadin Application with the Mill Build Tool
+:version: 0.0.1
 
 This is an experimental project to build Vaadin Applications with the https://github.com/com-lihaoyi/mill[Mill Build Tool].
 
@@ -11,9 +12,37 @@ The reason for this is easy: Vaadin used various tools and also often changes th
 
 Once we are able to build Vaadin applications in a robust way, I will try to move more and more parts into well-designed and isolated targets. This will be most likely a laborious and incremental path. Any contribution are very welcome!
 
+== Next steps
+
+=== Separate `development` builds from `production` builds
+
+The idea is to have two separated Mill modules, e.g. a `prod` submodule.
+
+As `development` builds will closely work based on node.js, we will make these the default (and only) mode.
+
+Production builds will be slower and don't need to watch their sources for changes, so we can copy all relevant files to a dedicated location (`prod` sub-module), where we run the build in production mode.
+
+=== Select Vaadin version
+
+As Vaadin build plugins are highly coupled to their release version, we need to make the version configurable. This is already prepared in the worker, but currently the used version is fixed.
 
 == Download
 
+Once, released, mill-vaadin will be available from Maven Central.
+
+== Usage
+
+.`build.sc`
+[source,scala,subs="attributes,verbatim"]
+----
+import $ivy.`de.tototec::de.tobiasroeser.mill.vaadin::{version}`
+
+import de.tobiasroeser.mill.vaadin.VaadinModule
+
+object foo extends JavaModule with VaadinModule {
+
+}
+----
 
 == Configuration / Documentation
 
@@ -25,5 +54,14 @@ To
 
 This project is published under the Apache License, Version 2.0.
 
+== Supporters
+
+The development of this plugin was initiated and sponsored by https://iba-cg.de/[iba Consulting Gesellschaft mbH & Co KG].
+
+
 == Changelog
 
+=== mill-vaadin 0.0.1
+
+In this early stage we just try to build a Vaadin Application _somehow_.
+That means, we don't follow design concepts typically used in Mill, but instead re-use some shared Vaadin Build Tooling (also used by latest Maven and Gradle plugins) and also use the same directory layout. This means, _we can't use Mills efficient up-to-date checking and caching capabilities_.
