@@ -36,7 +36,7 @@ jobs:
 
   publish:
     needs: build
-    if: github.repository == 'lefou/mill-vaadin' && github.ref == 'refs/heads/main'
+    if: github.repository == 'lefou/mill-vaadin' && contains(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     concurrency: publish-{{ github.sha }}
 
