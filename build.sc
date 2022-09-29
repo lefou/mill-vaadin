@@ -1,6 +1,6 @@
 // mill plugins
 import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.6.1`
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.2.0`
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.3.0`
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:`
 
 // imports
@@ -40,7 +40,7 @@ trait Deps {
 object Deps_0_10 extends Deps {
   override def millVersion = "0.10.0"
   override def millPlatform = "0.10"
-  override def scalaVersion = "2.13.8"
+  override def scalaVersion = "2.13.9"
   override def testWithMill = Seq("0.10.7", millVersion)
 }
 
