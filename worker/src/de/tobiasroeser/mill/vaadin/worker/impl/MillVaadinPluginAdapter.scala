@@ -41,7 +41,7 @@ class MillVaadinPluginAdapter(config: MillVaadinConfig) extends PluginAdapterBas
   override def nodeVersion(): String = "v16.16.0"
   override def npmFolder(): File = config.npmWorkPath.toIO
   override def openApiJsonFile(): File = (config.buildOutputPath / "generated-resources" / "openapi.json").toIO
-  override def pnpmEnable(): Boolean = false
+  override def pnpmEnable(): Boolean = config.pnpmEnabled
   override def useGlobalPnpm(): Boolean = false
   override def productionMode(): Boolean = config.productionMode
   override def projectBaseDirectory(): Path = config.projectBasePath.toNIO

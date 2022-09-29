@@ -24,6 +24,7 @@ trait MillVaadinConfig {
   def log: Logger
   def webpackOutPath: os.Path = vaadinBuildOutputPath / "META-INF" / "VAADIN" / "webapp"
   def resourceOutputPath: os.Path = vaadinBuildOutputPath / "META-INF" / "VAADIN"
+  def pnpmEnabled: Boolean = false
 
   override def toString(): String = Map(
     "debugEnabled" -> productionMode,

@@ -49,14 +49,15 @@ trait VaadinModule extends JavaModule {
     if (res.size != 1) { T.log.error(s"Not exactly one resource location defined. Using just the first: ${res.headOption.getOrElse("")}") }
     val dest = vaadinBuildPath().path
     val config = new MillVaadinConfig {
-      override def compatTargetDir: Path = dest
-      override def projectBasePath: Path = millSourcePath
-      override def buildFolder: String = "target"
-      override def classpath: Seq[Path] = vaadinInputRunClasspath().map(_.path)
-      override def log: Logger = T.ctx.log
-      override def productionMode: Boolean = prodMode()
-      override def frontendPath: Path = frontend
-      override def resourcePath: Path = res.headOption.getOrElse(super.resourcePath)
+      override val compatTargetDir: Path = dest
+      override val projectBasePath: Path = millSourcePath
+      override val buildFolder: String = "target"
+      override val classpath: Seq[Path] = vaadinInputRunClasspath().map(_.path)
+      override val log: Logger = T.ctx.log
+      override val productionMode: Boolean = prodMode()
+      override val frontendPath: Path = frontend
+      override val resourcePath: Path = res.headOption.getOrElse(super.resourcePath)
+      override val pnpmEnabled: Boolean = vaadinPnpmEnabled()
     }
     config
   }
@@ -163,4 +164,6 @@ trait VaadinModule extends JavaModule {
   def vaadinInputRunClasspath: T[Seq[PathRef]] = T {
     vaadinInputLocalClasspath() ++ upstreamAssemblyClasspath()
   }
+
+  def vaadinPnpmEnabled: T[Boolean] = T(false)
 }
