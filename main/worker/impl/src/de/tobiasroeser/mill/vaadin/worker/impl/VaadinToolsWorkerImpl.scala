@@ -7,7 +7,9 @@ import mill.api.Ctx
 class VaadinToolsWorkerImpl() extends VaadinToolsWorker {
 
   def prepareFrontend(config: MillVaadinConfig)(implicit ctx: Ctx): Unit = {
-    val adapter = new MillVaadinPluginAdapter(config)
+    val adapter = new MillVaadinPluginAdapter(config) {
+
+    }
     ctx.log.errorStream.println(s"adapter: ${adapter}")
     // propagate info via System properties and token file
     val tokenFile = BuildFrontendUtil.propagateBuildInfo(adapter);

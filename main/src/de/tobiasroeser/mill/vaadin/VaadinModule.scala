@@ -53,7 +53,6 @@ trait VaadinModule extends JavaModule {
       override val projectBasePath: Path = millSourcePath
       override val buildFolder: String = "target"
       override val classpath: Seq[Path] = vaadinInputRunClasspath().map(_.path)
-      override val log: Logger = T.ctx.log
       override val productionMode: Boolean = prodMode()
       override val frontendPath: Path = frontend
       override val resourcePath: Path = res.headOption.getOrElse(super.resourcePath)
@@ -123,7 +122,7 @@ trait VaadinModule extends JavaModule {
 
     val cl =
       new URLClassLoader(
-        vaadinToolsClasspath().map(_.path.toIO.toURI().toURL()).toArray[URL],
+        vaadinToolsClasspath().map(_.path.toIO.toURI().toURL()).iterator.toArray[URL],
         getClass().getClassLoader()
       )
     val className =

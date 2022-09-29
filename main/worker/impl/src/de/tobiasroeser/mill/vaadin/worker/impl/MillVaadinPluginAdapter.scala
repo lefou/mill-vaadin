@@ -3,6 +3,7 @@ package de.tobiasroeser.mill.vaadin.worker.impl
 import com.vaadin.flow.plugin.base.{BuildFrontendUtil, PluginAdapterBase, PluginAdapterBuild}
 import com.vaadin.flow.server.frontend.scanner.ClassFinder
 import de.tobiasroeser.mill.vaadin.worker.MillVaadinConfig
+import mill.api.Ctx
 
 import java.io.File
 import java.net.URI
@@ -10,7 +11,7 @@ import java.nio.file.Path
 import java.util
 import scala.jdk.CollectionConverters.{SeqHasAsJava, SetHasAsJava}
 
-class MillVaadinPluginAdapter(config: MillVaadinConfig) extends PluginAdapterBase with PluginAdapterBuild {
+class MillVaadinPluginAdapter(config: MillVaadinConfig)(implicit ctx: Ctx.Log) extends PluginAdapterBase with PluginAdapterBuild {
 
   // PluginAdapterBase
 
@@ -29,13 +30,13 @@ class MillVaadinPluginAdapter(config: MillVaadinConfig) extends PluginAdapterBas
   override def isDebugEnabled(): Boolean = config.debugEnabled
   override def javaSourceFolder(): File = (config.sourcePath.toIO)
   override def javaResourceFolder(): File = config.resourcePath.toIO
-  override def logDebug(debugMessage: CharSequence): Unit = config.log.debug(debugMessage.toString)
-  override def logInfo(infoMessage: CharSequence): Unit = config.log.info(infoMessage.toString)
-  override def logWarn(warningMessage: CharSequence): Unit = config.log.error(warningMessage.toString)
+  override def logDebug(debugMessage: CharSequence): Unit = ctx.log.debug(debugMessage.toString)
+  override def logInfo(infoMessage: CharSequence): Unit = ctx.log.info(infoMessage.toString)
+  override def logWarn(warningMessage: CharSequence): Unit = ctx.log.error(warningMessage.toString)
   override def logWarn(warningMessage: CharSequence, throwable: Throwable): Unit =
-    config.log.error(warningMessage.toString + "\n" + throwable.toString)
+    ctx.log.error(warningMessage.toString + "\n" + throwable.toString)
   override def logError(warning: CharSequence, e: Throwable): Unit =
-    config.log.error(warning.toString + "\n" + e.toString)
+    ctx.log.error(warning.toString + "\n" + e.toString)
   override def nodeDownloadRoot(): URI = new URI("https://nodejs.org/dist/")
   override def nodeAutoUpdate(): Boolean = false
   override def nodeVersion(): String = "v16.16.0"

@@ -21,7 +21,6 @@ trait MillVaadinConfig {
   def npmWorkPath: os.Path = projectBasePath
   def productionMode: Boolean = false
   def classpath: Seq[os.Path]
-  def log: Logger
   def webpackOutPath: os.Path = vaadinBuildOutputPath / "META-INF" / "VAADIN" / "webapp"
   def resourceOutputPath: os.Path = vaadinBuildOutputPath / "META-INF" / "VAADIN"
   def pnpmEnabled: Boolean = false
@@ -42,7 +41,6 @@ trait MillVaadinConfig {
     "npmWorkPath" -> npmWorkPath,
     "productionMode" -> productionMode,
     "classpath" -> classpath,
-    "log" -> log,
     "webpackOutPath" -> webpackOutPath,
     "resourceOutputPath" -> resourceOutputPath
   ).mkString(getClass.getSimpleName + "(\n  ", ",\n  ", "\n)")
