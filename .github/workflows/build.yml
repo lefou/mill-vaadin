@@ -31,7 +31,7 @@ jobs:
       - name: Upload scoverage reports to codecov.io
         uses: codecov/codecov-action@v3
         with:
-          files: ./out/vaadin/0.10/api/scoverage/xmlReport.dest/scoverage.xml,./out/vaadin/0.10/main/scoverage/xmlReport.dest/scoverage.xml,./out/vaadin/0.10/worker/scoverage/xmlReport.dest/scoverage.xml
+          files: ./out/main/0.10/scoverage/xmlReport.dest/scoverage.xml,./out/main/0.10/worker/scoverage/xmlReport.dest/scoverage.xml,./out/main/0.10/worker/impl/scoverage/xmlReport.dest/scoverage.xml,
         continue-on-error: true
 
   publish:

@@ -50,188 +50,201 @@ val millItestVersions = millApiVersions.flatMap { case (_, d) => d.testWithMill.
 
 val baseDir = build.millSourcePath
 
-object vaadin extends Cross[VaadinCross](millApiVersions.map(_._1): _*)
-class VaadinCross(val millPlatform: String) extends Module {
+trait MillVaadinModule extends ScalaModule with PublishModule with ScoverageModule {
+  def deps: Deps
 
-  def deps: Deps = millApiVersions.toMap.apply(millPlatform)
+  override def scalaVersion: T[String] = T(deps.scalaVersion)
+  override def publishVersion: T[String] = VcsVersion.vcsState().format()
+  override def artifactSuffix: T[String] = s"_mill${deps.millPlatform}_${artifactScalaVersion()}"
+  override def javacOptions = Seq("-source", "1.8", "-target", "1.8", "-encoding", "UTF-8", "-deprecation")
+  override def scalacOptions = Seq("-target:jvm-1.8", "-encoding", "UTF-8", "-deprecation")
+  override def scoverageVersion = deps.scoverageVersion
 
-  trait MillVaadinModule extends CrossScalaModule with PublishModule with ScoverageModule {
-    override def millSourcePath = baseDir / millOuterCtx.segment.pathSegments.last
-    override def crossScalaVersion = deps.scalaVersion
-    override def publishVersion: T[String] = VcsVersion.vcsState().format()
-    override def artifactSuffix: T[String] = s"_mill${millPlatform}_${artifactScalaVersion()}"
-
-    override def javacOptions = Seq("-source", "1.8", "-target", "1.8", "-encoding", "UTF-8")
-    override def scalacOptions = Seq("-target:jvm-1.8", "-encoding", "UTF-8")
-    override def scoverageVersion = deps.scoverageVersion
-
-    def pomSettings = T {
-      PomSettings(
-        description = "Vaadin support for mill",
-        organization = "de.tototec",
-        url = "https://github.com/lefou/mill-vaadin",
-        licenses = Seq(License.`Apache-2.0`),
-        versionControl = VersionControl.github("lefou", "mill-vaadin"),
-        developers = Seq(Developer("lefou", "Tobias Roeser", "https.//github.com/lefou"))
-      )
-    }
-
-    override def skipIdea: Boolean = millApiVersions.head._2.scalaVersion != crossScalaVersion
+  def pomSettings = T {
+    PomSettings(
+      description = "Vaadin support for mill",
+      organization = "de.tototec",
+      url = "https://github.com/lefou/mill-vaadin",
+      licenses = Seq(License.`Apache-2.0`),
+      versionControl = VersionControl.github("lefou", "mill-vaadin"),
+      developers = Seq(Developer("lefou", "Tobias Roeser", "https.//github.com/lefou"))
+    )
   }
 
-  object api extends MillVaadinModule {
-    override def artifactName = "de.tobiasroeser.mill.vaadin-api"
+  override def skipIdea: Boolean = millApiVersions.head._2.scalaVersion != deps.scalaVersion
+}
+
+object main extends Cross[MainCross](millApiVersions.map(_._1): _*)
+class MainCross(val millPlatform: String) extends MillVaadinModule { vaadin =>
+  override def deps: Deps = millApiVersions.toMap.apply(millPlatform)
+
+  override def millSourcePath: os.Path = super.millSourcePath / os.up
+
+  object worker extends MillVaadinModule {
+    def deps = vaadin.deps
+    override def artifactName = "de.tobiasroeser.mill.vaadin-worker"
     override def compileIvyDeps: T[Loose.Agg[Dep]] = T {
       Agg(
         deps.millMainApi,
         deps.osLib
       )
     }
-  }
 
-  object worker extends MillVaadinModule {
-    override def artifactName = "de.tobiasroeser.mill.vaadin-worker"
-    override def moduleDeps: Seq[PublishModule] = Seq(api)
-    override def compileIvyDeps: T[Loose.Agg[Dep]] = T {
-      Agg(
-        deps.osLib,
-        deps.millMainApi,
-        deps.vaadinFlowServer,
-        deps.vaadinFlowPluginBase
+    object impl extends MillVaadinModule {
+      def deps = vaadin.deps
+
+      override def artifactName = "de.tobiasroeser.mill.vaadin-worker-impl"
+
+      override def moduleDeps: Seq[PublishModule] = Seq(worker)
+
+      override def compileIvyDeps: T[Loose.Agg[Dep]] = T {
+        Agg(
+          deps.osLib,
+          deps.millMainApi,
+          deps.vaadinFlowServer,
+          deps.vaadinFlowPluginBase
+        )
+      }
+
+      override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg(
+        deps.reflections
       )
     }
-    override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg(
-      deps.reflections
+  }
+
+  override def artifactName = "de.tobiasroeser.mill.vaadin"
+  override def moduleDeps: Seq[PublishModule] = Seq(worker)
+  override def ivyDeps = T {
+    Agg(ivy"${scalaOrganization()}:scala-library:${scalaVersion()}")
+  }
+
+  override def compileIvyDeps = Agg(
+    deps.millMain,
+    deps.millScalalib
+  )
+
+  object test extends Tests with TestModule.ScalaTest {
+    override def ivyDeps = Agg(
+      deps.scalaTest
     )
   }
 
-  object main extends MillVaadinModule {
-    override def artifactName = "de.tobiasroeser.mill.vaadin"
-    override def moduleDeps: Seq[PublishModule] = Seq(api)
-    override def ivyDeps = T {
-      Agg(ivy"${scalaOrganization()}:scala-library:${scalaVersion()}")
-    }
-
-    override def compileIvyDeps = Agg(
-      deps.millMain,
-      deps.millScalalib
-    )
-
-    object test extends Tests with TestModule.ScalaTest {
-      override def ivyDeps = Agg(
-        deps.scalaTest
-      )
-    }
-
-    override def generatedSources: Target[Seq[PathRef]] = T {
-      super.generatedSources() :+ versionFile()
-    }
-
-    private def formatIvyDep(dep: Dep): String = {
-      val module = dep.dep.module
-      s"${module.organization.value}:${module.name.value}:${dep.dep.version}"
-    }
-
-    def versionFile: Target[PathRef] = T {
-      val dest = T.ctx().dest
-      val body =
-        s"""package de.tobiasroeser.mill.vaadin
-           |
-           |/**
-           | * Build-time generated versions file.
-           | */
-           |object Versions {
-           |  /** The mill-kotlin version. */
-           |  val millVaadinVersion = "${publishVersion()}"
-           |  /** The mill API version used to build mill-kotlin. */
-           |  val buildTimeMillVersion = "${deps.millVersion}"
-           |  /** The ivy dependency holding the mill kotlin worker impl. */
-           |  val millVaadinWorkerImplIvyDep = "${worker.pomSettings().organization}:${worker.artifactId()}:${worker
-            .publishVersion()}"
-           |  val buildTimeFlowServerVersion = "${deps.vaadinFlowServer.dep.version}"
-           |  val vaadinFlowPluginBaseDep ="${formatIvyDep(deps.vaadinFlowPluginBase)}"
-           |  val workerIvyDeps = Seq(
-           |    "${worker.pomSettings().organization}:${worker.artifactId()}:${worker.publishVersion()}",
-           |    "${formatIvyDep(deps.vaadinFlowPluginBase)}",
-           |    "${formatIvyDep(deps.slf4j)}",
-           |    "${formatIvyDep(deps.slf4jSimple)}"
-           |  )
-           |}
-           |""".stripMargin
-
-      os.write(dest / "Versions.scala", body)
-      PathRef(dest)
-    }
+  override def generatedSources: Target[Seq[PathRef]] = T {
+    super.generatedSources() :+ versionFile()
   }
 
-  object itest extends Cross[ItestCross](deps.testWithMill: _*)
-  class ItestCross(millItestVersion: String) extends MillIntegrationTestModule {
-    override def millSourcePath: os.Path = baseDir / "itest"
-    override def sources: Sources = T.sources(
-      millSourcePath / s"src-${millItestVersion}",
-      millSourcePath / s"src-${millPlatform}",
-      millSourcePath / "src"
-    )
-    override def millTestVersion = millItestVersion
-    override def pluginsUnderTest = Seq(main)
-    override def temporaryIvyModules = Seq(api, worker)
+  private def formatIvyDep(dep: Dep): String = {
+    val module = dep.dep.module
+    s"${module.organization.value}:${module.name.value}:${dep.dep.version}"
+  }
 
-    override def testInvocations: Target[Seq[(PathRef, Seq[TestInvocation.Targets])]] =
-      testCases().map { tc =>
-        tc -> (tc.path.last match {
-//          case "skeleton-starter-flow-v23" => Seq(TestInvocation.Targets(targets = Seq("-d", "verifyPrepareFrontend")))
-//          case "skeleton-starter-flow-v23_2" => Seq(TestInvocation.Targets(Seq("-d", "verifyBuildFrontend")))
-          case "skeleton-starter-flow-spring-v23.2" => Seq(
+  def versionFile: Target[PathRef] = T {
+    val dest = T.ctx().dest
+    val artifactMetadata = worker.impl.artifactMetadata()
+    val body =
+      s"""package de.tobiasroeser.mill.vaadin
+         |
+         |/**
+         | * Build-time generated versions file.
+         | */
+         |object Versions {
+         |  /** The mill-kotlin version. */
+         |  val millVaadinVersion = "${publishVersion()}"
+         |  /** The mill API version used to build mill-kotlin. */
+         |  val buildTimeMillVersion = "${deps.millVersion}"
+         |  /** The ivy dependency holding the mill kotlin worker impl. */
+         |  val millVaadinWorkerImplIvyDep = "${artifactMetadata.group}:${artifactMetadata.id}:${artifactMetadata.version}"
+         |  val buildTimeFlowServerVersion = "${deps.vaadinFlowServer.dep.version}"
+         |  val vaadinFlowPluginBaseDep ="${formatIvyDep(deps.vaadinFlowPluginBase)}"
+         |  val workerIvyDeps = Seq(
+         |    "${artifactMetadata.group}:${artifactMetadata.id}:${artifactMetadata.version}",
+         |    "${formatIvyDep(deps.vaadinFlowPluginBase)}",
+         |    "${formatIvyDep(deps.slf4j)}",
+         |    "${formatIvyDep(deps.slf4jSimple)}"
+         |  )
+         |}
+         |""".stripMargin
+
+    os.write(dest / "Versions.scala", body)
+    PathRef(dest)
+  }
+
+}
+
+object itest extends Cross[ItestCross](millItestVersions.map(_._1): _*)
+class ItestCross(millItestVersion: String) extends MillIntegrationTestModule {
+
+  val deps: Deps = millItestVersions.toMap.apply(millItestVersion)
+  val mainModule = main(deps.millPlatform)
+
+  override def millSourcePath: os.Path = super.millSourcePath / os.up
+
+  override def sources: Sources = T.sources(
+    millSourcePath / s"src-${millItestVersion}",
+    millSourcePath / s"src-${deps.millPlatform}",
+    millSourcePath / "src"
+  )
+
+  override def millTestVersion = millItestVersion
+
+  override def pluginsUnderTest = Seq(mainModule)
+
+  override def temporaryIvyModules = Seq(mainModule.worker, mainModule.worker.impl)
+
+  override def testInvocations: Target[Seq[(PathRef, Seq[TestInvocation.Targets])]] =
+    testCases().map { tc =>
+      tc -> (tc.path.last match {
+        //          case "skeleton-starter-flow-v23" => Seq(TestInvocation.Targets(targets = Seq("-d", "verifyPrepareFrontend")))
+        //          case "skeleton-starter-flow-v23_2" => Seq(TestInvocation.Targets(Seq("-d", "verifyBuildFrontend")))
+        case "skeleton-starter-flow-spring-v23.2" => Seq(
             TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
             TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
             TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
             TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
           )
-          case _ => Seq()
-        })
-      }
-
-    def useScoverageJars: T[Boolean] = false
-
-    // Use scoverage enhanced jars to collect coverage data while running tests
-    override def temporaryIvyModulesDetails
-        : Task.Sequence[(PathRef, (PathRef, (PathRef, (PathRef, (PathRef, Artifact)))))] =
-      Target.traverse(temporaryIvyModules) { p =>
-        val jar = p match {
-          case p: ScoverageModule => p.scoverage.jar
-          case p => p.jar
-        }
-        jar zip (p.sourceJar zip (p.docJar zip (p.pom zip (p.ivy zip p.artifactMetadata))))
-      }
-    // Use scoverage enhanced jars to collect coverage data while running tests
-    override def pluginUnderTestDetails
-        : Task.Sequence[(PathRef, (PathRef, (PathRef, (PathRef, (PathRef, Artifact)))))] =
-      Target.traverse(pluginsUnderTest) { p =>
-        val jar = p match {
-          case p: ScoverageModule => p.scoverage.jar
-          case p => p.jar
-        }
-        jar zip (p.sourceJar zip (p.docJar zip (p.pom zip (p.ivy zip p.artifactMetadata))))
-      }
-
-    override def perTestResources = T.sources {
-      Seq(
-        PathRef(millSourcePath / "resources"),
-        generatedSharedSrc()
-      )
+        case _ => Seq()
+      })
     }
 
-    def generatedSharedSrc = T {
-      os.write(
-        T.dest / "shared.sc",
-        s"""import $$ivy.`org.scoverage::scalac-scoverage-runtime:${deps.scoverageVersion}`
-           |import $$file.helper
-           |""".stripMargin
-      )
-      PathRef(T.dest)
+  def useScoverageJars: T[Boolean] = false
+
+  // Use scoverage enhanced jars to collect coverage data while running tests
+  override def temporaryIvyModulesDetails
+      : Task.Sequence[(PathRef, (PathRef, (PathRef, (PathRef, (PathRef, Artifact)))))] =
+    Target.traverse(temporaryIvyModules) { p =>
+      val jar = p match {
+        case p: ScoverageModule => p.scoverage.jar
+        case p => p.jar
+      }
+      jar zip (p.sourceJar zip (p.docJar zip (p.pom zip (p.ivy zip p.artifactMetadata))))
     }
+
+  // Use scoverage enhanced jars to collect coverage data while running tests
+  override def pluginUnderTestDetails: Task.Sequence[(PathRef, (PathRef, (PathRef, (PathRef, (PathRef, Artifact)))))] =
+    Target.traverse(pluginsUnderTest) { p =>
+      val jar = p match {
+        case p: ScoverageModule => p.scoverage.jar
+        case p => p.jar
+      }
+      jar zip (p.sourceJar zip (p.docJar zip (p.pom zip (p.ivy zip p.artifactMetadata))))
+    }
+
+  override def perTestResources = T.sources {
+    Seq(
+      PathRef(millSourcePath / "resources"),
+      generatedSharedSrc()
+    )
   }
 
+  def generatedSharedSrc = T {
+    os.write(
+      T.dest / "shared.sc",
+      s"""import $$ivy.`org.scoverage::scalac-scoverage-runtime:${deps.scoverageVersion}`
+         |import $$file.helper
+         |""".stripMargin
+    )
+    PathRef(T.dest)
+  }
 }
 
 object P extends Module {
