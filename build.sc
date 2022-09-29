@@ -1,6 +1,6 @@
 // mill plugins
 import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.6.1`
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.2.0`
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.3.0`
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:`
 
 // imports
@@ -30,7 +30,7 @@ trait Deps {
   val osLib = ivy"com.lihaoyi::os-lib:0.8.0"
   val reflections = ivy"org.reflections:reflections:0.10.2"
   val scalaTest = ivy"org.scalatest::scalatest:3.2.3"
-  val scoverageVersion = "2.0.3"
+  val scoverageVersion = "2.0.5"
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
   val slf4jSimple = ivy"org.slf4j:slf4j-simple:1.7.25"
   val utilsFunctional = ivy"de.tototec:de.tototec.utils.functional:2.0.1"
@@ -40,7 +40,7 @@ trait Deps {
 object Deps_0_10 extends Deps {
   override def millVersion = "0.10.0"
   override def millPlatform = "0.10"
-  override def scalaVersion = "2.13.8"
+  override def scalaVersion = "2.13.9"
   override def testWithMill = Seq("0.10.7", millVersion)
 }
 
