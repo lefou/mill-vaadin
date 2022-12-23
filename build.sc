@@ -21,7 +21,7 @@ trait Deps {
   def scalaVersion: String
   def testWithMill: Seq[String]
 
-  val vaadinVersion = "23.2.0"
+  val vaadinVersion = "23.2.3"
 
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
   val millMainApi = ivy"com.lihaoyi::mill-main-api:${millVersion}"
