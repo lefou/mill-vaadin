@@ -12,7 +12,7 @@ import de.tobiasroeser.mill.vaadin._
 
 object Deps {
   def springBootVersion = "2.7.3"
-  def vaadinVersion = "23.3.2"
+  def vaadinVersion = "23.3.1"
 
   val springBootStarterValidation = ivy"org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
   val vaadin = ivy"com.vaadin:vaadin:${vaadinVersion}"
