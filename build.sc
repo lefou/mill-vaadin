@@ -13,6 +13,7 @@ import mill._
 import mill.contrib.scoverage.{ScoverageModule, ScoverageReport}
 import mill.define.{Module, Target, Task}
 import mill.scalalib._
+import mill.scalalib.api.ZincWorkerUtil
 import mill.scalalib.publish._
 
 trait Deps {
@@ -30,21 +31,27 @@ trait Deps {
   val osLib = ivy"com.lihaoyi::os-lib:0.8.0"
   val reflections = ivy"org.reflections:reflections:0.10.2"
   val scalaTest = ivy"org.scalatest::scalatest:3.2.3"
-  val scoverageVersion = "2.0.5"
+  val scoverageVersion = "2.0.8"
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
   val slf4jSimple = ivy"org.slf4j:slf4j-simple:1.7.25"
   val utilsFunctional = ivy"de.tototec:de.tototec.utils.functional:2.0.1"
   val vaadinFlowServer = ivy"com.vaadin:flow-server:${vaadinVersion}"
   val vaadinFlowPluginBase = ivy"com.vaadin:flow-plugin-base:${vaadinVersion}"
 }
+object Deps_0_11 extends Deps {
+  override def millVersion = "0.11.0-M4" // exact milestone
+  override def millPlatform = millVersion
+  override def scalaVersion = "2.13.10"
+  override def testWithMill = Seq(millVersion)
+}
 object Deps_0_10 extends Deps {
   override def millVersion = "0.10.0"
   override def millPlatform = "0.10"
-  override def scalaVersion = "2.13.9"
-  override def testWithMill = Seq("0.10.7", millVersion)
+  override def scalaVersion = "2.13.10"
+  override def testWithMill = Seq("0.10.11", millVersion)
 }
 
-val millApiVersions = Seq(Deps_0_10).map(x => x.millPlatform -> x)
+val millApiVersions = Seq(Deps_0_11, Deps_0_10).map(x => x.millPlatform -> x)
 
 val millItestVersions = millApiVersions.flatMap { case (_, d) => d.testWithMill.map(_ -> d) }
 
@@ -79,6 +86,12 @@ class MainCross(val millPlatform: String) extends MillVaadinModule { vaadin =>
   override def deps: Deps = millApiVersions.toMap.apply(millPlatform)
 
   override def millSourcePath: os.Path = super.millSourcePath / os.up
+
+  override def sources: Sources = T.sources {
+    super.sources() ++
+      ZincWorkerUtil.versionRanges(millPlatform, millApiVersions.map(_._1))
+        .map(p => PathRef(millSourcePath / s"src-${p}"))
+  }
 
   object worker extends MillVaadinModule {
     def deps = vaadin.deps

@@ -6,17 +6,10 @@ import mill.define.{Command, Input, Source, Task, Worker}
 import mill.scalalib.{Dep, DepSyntax, JavaModule}
 import de.tobiasroeser.mill.vaadin.worker.{MillVaadinConfig, PreparedFrontend, VaadinToolsConfig, VaadinToolsWorker}
 import os.Path
-import upickle.default.{ReadWriter, macroRW}
 
 import java.net.{URL, URLClassLoader}
 
-case class VaadinResult(classesDir: PathRef, productionMode: Boolean)
-
-object VaadinResult {
-  implicit val upickleRW: ReadWriter[VaadinResult] = macroRW[VaadinResult]
-}
-
-trait VaadinModule extends JavaModule {
+trait VaadinModule extends VaadinModulePlatform {
 
   private val buildPath = millSourcePath / "target"
 
@@ -109,12 +102,8 @@ trait VaadinModule extends JavaModule {
     Option(sys.props("vaadin.productionMode")).exists(p => p == "true")
   }
 
-  def vaadinToolsIvyDeps: T[Agg[Dep]] = T {
+  override def vaadinToolsIvyDeps: T[Agg[Dep]] = T {
     Agg.from(Versions.workerIvyDeps.map(d => ivy"${d}"))
-  }
-
-  def vaadinToolsClasspath: T[Agg[PathRef]] = T {
-    resolveDeps(vaadinToolsIvyDeps)()
   }
 
   def vaadinToolsWorker: Worker[VaadinToolsWorker] = T.worker {
