@@ -16,7 +16,7 @@ trait MillVaadinConfig {
   def applicationPropertiesPath: os.Path = resourcePath / "application.properties"
   def sourcePath: os.Path = projectBasePath / "src" / "main" / "java"
   def frontendPath: os.Path = projectBasePath / "frontend"
-  def generatedPath: os.Path = compatTargetDir / "frontend"
+  def generatedPath: os.Path = buildOutputPath / "frontend"
   def generatedTsPath: os.Path = frontendPath / "generated"
   def npmWorkPath: os.Path = projectBasePath
   def productionMode: Boolean = false
@@ -25,23 +25,28 @@ trait MillVaadinConfig {
   def resourceOutputPath: os.Path = vaadinBuildOutputPath / "META-INF" / "VAADIN"
   def pnpmEnabled: Boolean = false
 
-  override def toString(): String = Map(
+  override def toString(): String = Seq(
+    "applicationPropertiesPath" -> applicationPropertiesPath,
+    "buildFolder" -> buildFolder,
+    "classpath" -> classpath,
     "debugEnabled" -> productionMode,
     "eagerServerLoad" -> eagerServerLoad,
-    "projectBasePath" -> projectBasePath,
-    "buildFolder" -> buildFolder,
-    "vaadinBuildOutputPath" -> vaadinBuildOutputPath,
-    "resourcePath" -> resourcePath,
-    "frontendResourcePath" -> frontendResourcePath,
-    "applicationPropertiesPath" -> applicationPropertiesPath,
-    "sourcePath" -> sourcePath,
     "frontendPath" -> frontendPath,
+    "frontendResourcePath" -> frontendResourcePath,
     "generatedPath" -> generatedPath,
     "generatedTsPath" -> generatedTsPath,
     "npmWorkPath" -> npmWorkPath,
     "productionMode" -> productionMode,
-    "classpath" -> classpath,
+    "projectBasePath" -> projectBasePath,
+    "sourcePath" -> sourcePath,
+    "resourceOutputPath" -> resourceOutputPath,
+    "resourcePath" -> resourcePath,
+    "vaadinBuildOutputPath" -> vaadinBuildOutputPath,
     "webpackOutPath" -> webpackOutPath,
-    "resourceOutputPath" -> resourceOutputPath
-  ).mkString(getClass.getSimpleName + "(\n  ", ",\n  ", "\n)")
+  ).mkString(
+    s"""${getClass.getSimpleName}(
+       |  """.stripMargin,
+    ",\n  ",
+    "\n)"
+  )
 }

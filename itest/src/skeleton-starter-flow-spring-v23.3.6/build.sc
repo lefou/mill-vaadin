@@ -11,8 +11,8 @@ import mill.api.Result
 import de.tobiasroeser.mill.vaadin._
 
 object Deps {
-  def springBootVersion = "2.7.3"
-  def vaadinVersion = "23.2.0"
+  def springBootVersion = "2.7.8"
+  def vaadinVersion = "23.3.6"
 
   val springBootStarterValidation = ivy"org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
   val vaadin = ivy"com.vaadin:vaadin:${vaadinVersion}"
@@ -54,23 +54,47 @@ def validateCleanFrontend(): Command[Unit] = T.command {
 }
 
 val filesPrepare = Seq(
+  os.sub / "types.d.ts",
+  os.sub / "tsconfig.json",
+  os.sub / "package-lock.json",
   os.sub / "vite.generated.ts",
   os.sub / "frontend" / "generated" / "vaadin-featureflags.ts",
   os.sub / "frontend" / "generated" / "vite-devmode.ts",
   os.sub / "frontend" / "generated" / "jar-resources" / "comboBoxConnector.js",
   os.sub / "frontend" / "generated" / "jar-resources" / "index.js",
+  os.sub / "frontend" / "generated" / "jar-resources" / "index.d.ts",
+  os.sub / "frontend" / "generated" / "jar-resources" / "FlowClient.js",
+  os.sub / "frontend" / "generated" / "jar-resources" / "Flow.js",
+  os.sub / "frontend" / "generated" / "jar-resources" / "Flow.js.map",
+  os.sub / "frontend" / "generated" / "jar-resources" / "Flow.d.ts",
+  os.sub / "frontend" / "generated" / "jar-resources" / "FlowClient.d.ts",
+  os.sub / "frontend" / "generated" / "jar-resources" / "vaadin-dev-tools.d.ts",
+  os.sub / "frontend" / "generated" / "jar-resources" / "vaadin-dev-tools.js",
   os.sub / "frontend" / "generated" / "jar-resources" / "vaadin-map" / "synchronization" / "index.js",
   os.sub / "target" / "vaadin-dev-server-settings.json",
   os.sub / "target" / "frontend",
   os.sub / "target" / "classes" / "META-INF" / "VAADIN" / "config" / "flow-build-info.json"
 )
 
+val filesBuild = Seq(
+  os.sub / "node_modules",
+  os.sub / "target" / "frontend" / "versions.json",
+  os.sub / "target" / "frontend" / "generated-flow-imports-fallback.js",
+  os.sub / "target" / "frontend" / "generated-flow-imports.js",
+  os.sub / "target" / "frontend" / "generated-flow-imports.d.ts",
+  os.sub / "target" / "classes" / "META-INF" / "VAADIN" / "config" / "stats.json",
+  os.sub / "target" / "classes" / "META-INF" / "VAADIN" / "webapp" / "VAADIN" / "build",
+  os.sub / "target" / "classes" / "META-INF" / "VAADIN" / "webapp" / "index.html",
+  os.sub / "target" / "plugins" / "theme-loader" / "theme-loader.js",
+  os.sub / "target" / "plugins" / "application-theme-plugin" / "package.json",
+  os.sub / "target" / "plugins" / "theme-live-reload-plugin" / "package.json"
+)
+
 def validatePrepareFrontend(): Command[Unit] = T.command {
   val base = T.workspace
-  val target = base / "target"
 
   val content = Map(
-    target / "classes" / "META-INF" / "VAADIN" / "config" / "flow-build-info.json" ->
+    base / "target" / "classes" / "META-INF" / "VAADIN" / "config" / "flow-build-info.json" ->
       s"""{
          |  "productionMode": false,
          |  "useDeprecatedV14Bootstrapping": false,
@@ -93,40 +117,22 @@ def validatePrepareFrontend(): Command[Unit] = T.command {
 
   val assertions =
     filesPrepare.map(base / _).flatMap(helper.checkExistingFile) ++
+      filesBuild.map(base / _).flatMap(helper.checkNonexistantFile) ++
       content.flatMap { case (f, c) => helper.checkFileContents(f, c) }
   if (assertions.nonEmpty) {
     Result.Failure(s"${assertions.size} invalid!\n" + assertions.mkString("\n"))
   } else {
     println("All exist:\n" + filesPrepare.mkString("\n"))
+    println("All do not exist:\n" + filesBuild.mkString("\n"))
     Result.Success(())
   }
 }
 
 def validateBuildFrontend(): Command[Unit] = T.command {
   val base = T.workspace
-  val target = base / "target"
-
-  val files = Seq(
-    base / "node_modules",
-    base / "package-lock.json",
-    base / "tsconfig.json",
-    base / "types.d.ts",
-    target / "frontend" / "versions.json",
-    target / "frontend" / "generated-flow-imports-fallback.js",
-    target / "frontend" / "generated-flow-imports.js",
-    target / "frontend" / "generated-flow-imports.d.ts",
-    target / "classes" / "META-INF" / "VAADIN" / "config" / "stats.json",
-    target / "classes" / "META-INF" / "VAADIN" / "webapp" / "VAADIN" / "build",
-    target / "classes" / "META-INF" / "VAADIN" / "webapp" / "index.html",
-    target / "plugins" / "theme-loader" / "theme-loader.js",
-    target / "plugins" / "application-theme-plugin" / "package.json",
-    target / "plugins" / "theme-live-reload-plugin" / "package.json"
-  ) ++ filesPrepare.map(base / _)
-
-  val content = Map()
 
   val contains = Map(
-    target / "classes" / "META-INF" / "VAADIN" / "config" / "flow-build-info.json" ->
+    base / "target" / "classes" / "META-INF" / "VAADIN" / "config" / "flow-build-info.json" ->
       Seq(
         """"productionMode": false""",
         """"useDeprecatedV14Bootstrapping": false"""
@@ -134,9 +140,10 @@ def validateBuildFrontend(): Command[Unit] = T.command {
       )
   )
 
+  val files = filesPrepare ++ filesBuild
+
   val assertions =
-    files.flatMap(helper.checkExistingFile) ++
-      content.flatMap { case (f, c) => helper.checkFileContents(f, c) } ++
+    files.map(base / _).flatMap(helper.checkExistingFile) ++
       contains.flatMap { case (f, cs) => cs.flatMap(c => helper.checkFileContains(f, c)) }
   if (assertions.nonEmpty) {
     Result.Failure(s"${assertions.size} invalid!\n" + assertions.mkString("\n"))
