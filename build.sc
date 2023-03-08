@@ -11,7 +11,7 @@ import de.tobiasroeser.mill.integrationtest._
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 import mill._
 import mill.contrib.scoverage.{ScoverageModule, ScoverageReport}
-import mill.define.{Module, Target, Task}
+import mill.define.{Module, Target, Task, TaskModule}
 import mill.scalalib._
 import mill.scalalib.api.ZincWorkerUtil
 import mill.scalalib.publish._
@@ -184,7 +184,10 @@ class MainCross(val millPlatform: String) extends MillVaadinModule { vaadin =>
 
 }
 
-object itest extends Cross[ItestCross](millItestVersions.map(_._1): _*)
+object itest extends Cross[ItestCross](millItestVersions.map(_._1): _*) with TaskModule {
+  override def defaultCommandName(): String = "test"
+  def test(args: String*) = millModuleDirectChildren.collect { case m: ItestCross => m }.head.test(args: _*)
+}
 class ItestCross(millItestVersion: String) extends MillIntegrationTestModule {
 
   val deps: Deps = millItestVersions.toMap.apply(millItestVersion)
