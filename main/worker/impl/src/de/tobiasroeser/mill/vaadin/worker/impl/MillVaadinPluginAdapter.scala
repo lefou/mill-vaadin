@@ -11,7 +11,8 @@ import java.nio.file.Path
 import java.util
 import scala.jdk.CollectionConverters.{SeqHasAsJava, SetHasAsJava}
 
-class MillVaadinPluginAdapter(config: MillVaadinConfig)(implicit ctx: Ctx.Log) extends PluginAdapterBase with PluginAdapterBuild {
+class MillVaadinPluginAdapter(config: MillVaadinConfig)(implicit ctx: Ctx.Log) extends PluginAdapterBase
+    with PluginAdapterBuild {
 
   // PluginAdapterBase
 
@@ -60,36 +61,41 @@ class MillVaadinPluginAdapter(config: MillVaadinConfig)(implicit ctx: Ctx.Log) e
   override def optimizeBundle(): Boolean = true
   override def runNpmInstall(): Boolean = true
 
-  override def toString: String = Map(
+  override def toString: String = Seq(
     "applicationProperties" -> applicationProperties(),
+    "buildFolder" -> buildFolder(),
     "eagerServerLoad" -> eagerServerLoad(),
     "frontendDirectory" -> frontendDirectory(),
+    "frontendResourcesDirectory" -> frontendResourcesDirectory(),
+    "generateBundle" -> generateBundle(),
     "generatedFolder" -> generatedFolder(),
     "generatedTsFolder" -> generatedTsFolder(),
-    "getJarFiles" -> getJarFiles(),
-    "isJarProject" -> isJarProject(),
+    "generateEmbeddableWebComponents" -> generateEmbeddableWebComponents(),
     "getUseDeprecatedV14Bootstrapping" -> getUseDeprecatedV14Bootstrapping(),
+    "getJarFiles" -> getJarFiles(),
     "isDebugEnabled" -> isDebugEnabled(),
-    "javaSourceFolder" -> javaSourceFolder(),
+    "isJarProject" -> isJarProject(),
     "javaResourceFolder" -> javaResourceFolder(),
-    "nodeDownloadRoot" -> nodeDownloadRoot(),
+    "javaSourceFolder" -> javaSourceFolder(),
     "nodeAutoUpdate" -> nodeAutoUpdate(),
+    "nodeDownloadRoot" -> nodeDownloadRoot(),
     "nodeVersion" -> nodeVersion(),
     "npmFolder" -> npmFolder(),
     "openApiJsonFile" -> openApiJsonFile(),
+    "optimizeBundle" -> optimizeBundle(),
     "pnpmEnable" -> pnpmEnable(),
-    "useGlobalPnpm" -> useGlobalPnpm(),
+    "postinstallPackages" -> postinstallPackages(),
     "productionMode" -> productionMode(),
     "projectBaseDirectory" -> projectBaseDirectory(),
     "requireHomeNodeExec" -> requireHomeNodeExec(),
+    "runNpmInstall" -> runNpmInstall(),
     "servletResourceOutputDirectory" -> servletResourceOutputDirectory(),
-    "webpackOutputDirectory" -> webpackOutputDirectory(),
-    "buildFolder" -> buildFolder(),
-    "postinstallPackages" -> postinstallPackages(),
-    "frontendResourcesDirectory" -> frontendResourcesDirectory(),
-    "generateBundle" -> generateBundle(),
-    "generateEmbeddableWebComponents" -> generateEmbeddableWebComponents(),
-    "optimizeBundle" -> optimizeBundle(),
-    "runNpmInstall" -> runNpmInstall()
-  ).mkString(getClass().getSimpleName() + "(\n  ", ",\n  ", "\n)")
+    "useGlobalPnpm" -> useGlobalPnpm(),
+    "webpackOutputDirectory" -> webpackOutputDirectory()
+  ).mkString(
+    s"""${getClass().getSimpleName()}(
+       |  """.stripMargin,
+    ",\n  ",
+    "\n)"
+  )
 }

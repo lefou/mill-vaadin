@@ -22,13 +22,13 @@ trait Deps {
   def scalaVersion: String
   def testWithMill: Seq[String]
 
-  val vaadinVersion = "23.2.0"
+  val vaadinVersion = "23.3.4"
 
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
   val millMainApi = ivy"com.lihaoyi::mill-main-api:${millVersion}"
   val millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
   val millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
-  val osLib = ivy"com.lihaoyi::os-lib:0.8.0"
+  def osLib = ivy"com.lihaoyi::os-lib:0.8.0"
   val reflections = ivy"org.reflections:reflections:0.10.2"
   val scalaTest = ivy"org.scalatest::scalatest:3.2.3"
   val scoverageVersion = "2.0.8"
@@ -43,6 +43,7 @@ object Deps_0_11 extends Deps {
   override def millPlatform = millVersion
   override def scalaVersion = "2.13.10"
   override def testWithMill = Seq(millVersion)
+  override def osLib = ivy"com.lihaoyi::os-lib:0.9.0"
 }
 object Deps_0_10 extends Deps {
   override def millVersion = "0.10.0"
@@ -216,7 +217,7 @@ class ItestCross(millItestVersion: String) extends MillIntegrationTestModule {
           TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
           TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
         )
-        case "skeleton-starter-flow-spring-v23.3" => Seq(
+        case "skeleton-starter-flow-spring-v23.3.6" => Seq(
           TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
           TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
           TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
