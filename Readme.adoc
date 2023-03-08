@@ -1,5 +1,5 @@
 = Plugin to Build Vaadin Application with the Mill Build Tool
-:version: 0.0.1
+:version: 0.0.3
 
 This is an experimental project to build Vaadin Applications with the https://github.com/com-lihaoyi/mill[Mill Build Tool].
 
@@ -39,9 +39,7 @@ import $ivy.`de.tototec::de.tobiasroeser.mill.vaadin::{version}`
 
 import de.tobiasroeser.mill.vaadin.VaadinModule
 
-object foo extends JavaModule with VaadinModule {
-
-}
+object foo extends JavaModule with VaadinModule
 ----
 
 == Configuration / Documentation
@@ -60,6 +58,15 @@ The development of this plugin was initiated and sponsored by https://iba-cg.de/
 
 
 == Changelog
+
+=== mill-vaadin 0.0.3 - 2023-03-08
+
+* Added support for Mill 0.11.0-M4
+* Updated Vaadin tooling to 23.3.4
+
+=== mill-vaadin 0.0.2 - 2022-09-29
+
+* Made use of `pnpm` configurable
 
 === mill-vaadin 0.0.1 - 2022-09-21
 
