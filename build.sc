@@ -39,11 +39,11 @@ trait Deps {
   val vaadinFlowPluginBase = ivy"com.vaadin:flow-plugin-base:${vaadinVersion}"
 }
 object Deps_0_11 extends Deps {
-  override def millVersion = "0.11.0-M4" // exact milestone
+  override def millVersion = "0.11.0-M6" // exact milestone
   override def millPlatform = millVersion
   override def scalaVersion = "2.13.10"
   override def testWithMill = Seq(millVersion)
-  override def osLib = ivy"com.lihaoyi::os-lib:0.9.0"
+  override def osLib = ivy"com.lihaoyi::os-lib:0.9.1"
 }
 object Deps_0_10 extends Deps {
   override def millVersion = "0.10.0"
