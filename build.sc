@@ -46,7 +46,7 @@ object Deps_0_11 extends Deps {
   override def osLib = ivy"com.lihaoyi::os-lib:0.9.1"
 }
 object Deps_0_10 extends Deps {
-  override def millVersion = "0.10.0"
+  override def millVersion = "0.10.12"
   override def millPlatform = "0.10"
   override def scalaVersion = "2.13.10"
   override def testWithMill = Seq("0.10.11", millVersion)
@@ -212,17 +212,17 @@ class ItestCross(millItestVersion: String) extends MillIntegrationTestModule {
     testCases().map { tc =>
       tc -> (tc.path.last match {
         case "skeleton-starter-flow-spring-v23.2" => Seq(
-          TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
-          TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
-          TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
-          TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
-        )
+            TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
+            TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
+          )
         case "skeleton-starter-flow-spring-v23.3.6" => Seq(
-          TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
-          TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
-          TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
-          TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
-        )
+            TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
+            TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
+          )
         case _ => Seq()
       })
     }
