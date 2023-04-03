@@ -22,7 +22,7 @@ trait Deps {
   def scalaVersion: String
   def testWithMill: Seq[String]
 
-  val vaadinVersion = "23.3.4"
+  val vaadinVersion = "23.3.6"
 
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
   val millMainApi = ivy"com.lihaoyi::mill-main-api:${millVersion}"
@@ -212,17 +212,17 @@ class ItestCross(millItestVersion: String) extends MillIntegrationTestModule {
     testCases().map { tc =>
       tc -> (tc.path.last match {
         case "skeleton-starter-flow-spring-v23.2" => Seq(
-          TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
-          TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
-          TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
-          TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
-        )
+            TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
+            TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
+          )
         case "skeleton-starter-flow-spring-v23.3.6" => Seq(
-          TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
-          TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
-          TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
-          TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
-        )
+            TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
+            TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
+          )
         case _ => Seq()
       })
     }
