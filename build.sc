@@ -212,17 +212,17 @@ class ItestCross(millItestVersion: String) extends MillIntegrationTestModule {
     testCases().map { tc =>
       tc -> (tc.path.last match {
         case "skeleton-starter-flow-spring-v23.2" => Seq(
-          TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
-          TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
-          TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
-          TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
-        )
+            TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
+            TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
+          )
         case "skeleton-starter-flow-spring-v23.3.6" => Seq(
-          TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
-          TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
-          TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
-          TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
-        )
+            TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
+            TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
+            TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
+          )
         case _ => Seq()
       })
     }
