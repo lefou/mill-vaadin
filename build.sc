@@ -28,7 +28,7 @@ trait Deps {
   val millMainApi = ivy"com.lihaoyi::mill-main-api:${millVersion}"
   val millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
   val millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
-  def osLib = ivy"com.lihaoyi::os-lib:0.8.0"
+  def osLib: Dep
   val reflections = ivy"org.reflections:reflections:0.10.2"
   val scalaTest = ivy"org.scalatest::scalatest:3.2.3"
   val scoverageVersion = "2.0.8"
@@ -46,10 +46,11 @@ object Deps_0_11 extends Deps {
   override def osLib = ivy"com.lihaoyi::os-lib:0.9.1"
 }
 object Deps_0_10 extends Deps {
-  override def millVersion = "0.10.0"
+  override def millVersion = "0.10.0" // scala-steward:off
   override def millPlatform = "0.10"
   override def scalaVersion = "2.13.10"
   override def testWithMill = Seq("0.10.11", millVersion)
+  override def osLib = ivy"com.lihaoyi::os-lib:0.8.0"  // scala-steward:off
 }
 
 val millApiVersions = Seq(Deps_0_11, Deps_0_10).map(x => x.millPlatform -> x)
