@@ -1,5 +1,5 @@
-import $exec.plugins
-import $exec.shared
+import $file.plugins
+import $file.shared
 
 //import $ivy.`de.tototec::de.tobiasroeser.mill.vaadin::0.0.1-SNAPSHOT`
 
