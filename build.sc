@@ -19,7 +19,7 @@ import mill.scalalib.publish._
 trait Deps {
   def millPlatform: String
   def millVersion: String
-  def scalaVersion: String
+  def scalaVersion: String = "2.13.11"
   def testWithMill: Seq[String]
 
   val vaadinVersion = "23.3.6"
@@ -39,16 +39,14 @@ trait Deps {
   val vaadinFlowPluginBase = ivy"com.vaadin:flow-plugin-base:${vaadinVersion}"
 }
 object Deps_0_11 extends Deps {
-  override def millVersion = "0.11.0-M8" // exact milestone
+  override def millVersion = "0.11.0-M11" // exact milestone
   override def millPlatform = millVersion
-  override def scalaVersion = "2.13.10"
   override def testWithMill = Seq(millVersion)
   override def osLib = ivy"com.lihaoyi::os-lib:0.9.1"
 }
 object Deps_0_10 extends Deps {
   override def millVersion = "0.10.0" // scala-steward:off
   override def millPlatform = "0.10"
-  override def scalaVersion = "2.13.10"
   override def testWithMill = Seq("0.10.11", millVersion)
   override def osLib = ivy"com.lihaoyi::os-lib:0.8.0" // scala-steward:off
 }
