@@ -22,7 +22,7 @@ trait Deps {
   def scalaVersion: String = "2.13.11"
   def testWithMill: Seq[String]
 
-  val vaadinVersion = "23.3.12"
+  val vaadinFlowVersion = "23.3.12"
 
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
   val millMainApi = ivy"com.lihaoyi::mill-main-api:${millVersion}"
@@ -35,8 +35,8 @@ trait Deps {
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
   val slf4jSimple = ivy"org.slf4j:slf4j-simple:1.7.25"
   val utilsFunctional = ivy"de.tototec:de.tototec.utils.functional:2.0.1"
-  val vaadinFlowServer = ivy"com.vaadin:flow-server:${vaadinVersion}"
-  val vaadinFlowPluginBase = ivy"com.vaadin:flow-plugin-base:${vaadinVersion}"
+  val vaadinFlowServer = ivy"com.vaadin:flow-server:${vaadinFlowVersion}"
+  val vaadinFlowPluginBase = ivy"com.vaadin:flow-plugin-base:${vaadinFlowVersion}"
 }
 object Deps_0_11 extends Deps {
   override def millVersion = "0.11.0-M11" // exact milestone
