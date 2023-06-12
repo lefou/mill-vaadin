@@ -1,5 +1,5 @@
 = Plugin to Build Vaadin Application with the Mill Build Tool
-:version: 0.0.3
+:version: 0.0.4
 
 This is an experimental project to build Vaadin Applications with the https://github.com/com-lihaoyi/mill[Mill Build Tool].
 
@@ -58,6 +58,12 @@ The development of this plugin was initiated and sponsored by https://iba-cg.de/
 
 
 == Changelog
+
+=== mill-vaadin 0.0.3 - 2023-03-08
+
+* Added support for Mill API 0.11
+* Update Vaadin Flow tooling to 23.3.12
+* Various internal version bumps
 
 === mill-vaadin 0.0.3 - 2023-03-08
 
