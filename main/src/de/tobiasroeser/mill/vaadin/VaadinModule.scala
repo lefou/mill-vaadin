@@ -39,7 +39,9 @@ trait VaadinModule extends VaadinModulePlatform {
   def millVaadinConfig(prodMode: Task[Boolean]): Task[MillVaadinConfig] = T.task {
     val frontend = vaadinFrontend().path
     val res = resources().map(_.path)
-    if (res.size != 1) { T.log.error(s"Not exactly one resource location defined. Using just the first: ${res.headOption.getOrElse("")}") }
+    if (res.size != 1) {
+      T.log.error(s"Not exactly one resource location defined. Using just the first: ${res.headOption.getOrElse("")}")
+    }
     val dest = vaadinBuildPath().path
     val config = new MillVaadinConfig {
       override val compatTargetDir: Path = dest
