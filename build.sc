@@ -19,7 +19,7 @@ import mill.scalalib.publish._
 trait Deps {
   def millPlatform: String
   def millVersion: String
-  def scalaVersion: String = "2.13.11"
+  def scalaVersion: String = "2.13.12"
   def testWithMill: Seq[String]
 
   val vaadinFlowVersion = "23.3.17"
