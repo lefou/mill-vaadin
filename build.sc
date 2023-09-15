@@ -30,7 +30,7 @@ trait Deps {
   val millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
   def osLib: Dep
   val reflections = ivy"org.reflections:reflections:0.10.2"
-  val scalaTest = ivy"org.scalatest::scalatest:3.2.16"
+  val scalaTest = ivy"org.scalatest::scalatest:3.2.17"
   val scoverageVersion = "2.0.11"
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
   val slf4jSimple = ivy"org.slf4j:slf4j-simple:1.7.25"
