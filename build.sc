@@ -22,7 +22,7 @@ trait Deps {
   def scalaVersion: String = "2.13.12"
   def testWithMill: Seq[String]
 
-  val vaadinFlowVersion = "23.3.19"
+  val vaadinFlowVersion = "23.3.21"
 
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
   val millMainApi = ivy"com.lihaoyi::mill-main-api:${millVersion}"
