@@ -23,8 +23,6 @@ class VaadinToolsWorkerImpl() extends VaadinToolsWorker {
     BuildFrontendUtil.runFrontendBuild(adapter)
   }
 
-  def cleanFrontend(config: MillVaadinConfig)(implicit ctx: Ctx): Unit = {
-
-  }
+  def cleanFrontend(config: MillVaadinConfig)(implicit ctx: Ctx): Unit = {}
 
 }
