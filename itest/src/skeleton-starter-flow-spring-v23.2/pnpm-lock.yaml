@@ -387,11 +387,11 @@ devDependencies:
     specifier: 4.7.4
     version: 4.7.4
   vite:
-    specifier: v3.2.7
-    version: 3.2.7
+    specifier: v3.2.8
+    version: 3.2.8
   vite-plugin-checker:
     specifier: 0.4.9
-    version: 0.4.9(vite@3.2.7)
+    version: 0.4.9(vite@3.2.8)
   workbox-build:
     specifier: 6.5.0
     version: 6.5.0
@@ -5042,7 +5042,7 @@ packages:
       punycode: 2.1.1
     dev: true
 
-  /vite-plugin-checker@0.4.9(vite@3.2.7):
+  /vite-plugin-checker@0.4.9(vite@3.2.8):
     resolution: {integrity: sha512-Oii9mTum8bqZovWejcR739kCqST32oG6LdB/XMdwcLVzmcjq0gf1iVDIedVzJJ7t6GLQAYgjNwvB0fuMiT3tlg==}
     hasBin: true
     peerDependencies:
@@ -5059,15 +5059,15 @@ packages:
       npm-run-path: 4.0.1
       strip-ansi: 6.0.1
       tiny-invariant: 1.2.0
-      vite: 3.2.7
+      vite: 3.2.8
       vscode-languageclient: 7.0.0
       vscode-languageserver: 7.0.0
       vscode-languageserver-textdocument: 1.0.7
       vscode-uri: 3.0.3
     dev: true
 
-  /vite@3.2.7:
-    resolution: {integrity: sha512-29pdXjk49xAP0QBr0xXqu2s5jiQIXNvE/xwd0vUizYT2Hzqe4BksNNoWllFVXJf4eLZ+UlVQmXfB4lWrc+t18g==}
+  /vite@3.2.8:
+    resolution: {integrity: sha512-EtQU16PLIJpAZol2cTLttNP1mX6L0SyI0pgQB1VOoWeQnMSvtiwovV3D6NcjN8CZQWWyESD2v5NGnpz5RvgOZA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
