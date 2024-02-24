@@ -31,7 +31,7 @@ trait Deps {
   def osLib: Dep
   val reflections = ivy"org.reflections:reflections:0.10.2"
   val scalaTest = ivy"org.scalatest::scalatest:3.2.17"
-  val scoverageVersion = "2.0.11"
+  val scoverageVersion = "2.1.0"
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
   val slf4jSimple = ivy"org.slf4j:slf4j-simple:1.7.25"
   val utilsFunctional = ivy"de.tototec:de.tototec.utils.functional:2.0.1"
