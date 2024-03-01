@@ -1,7 +1,4 @@
-import $file.plugins
 import $file.shared
-
-//import $ivy.`de.tototec::de.tobiasroeser.mill.vaadin::0.0.1-SNAPSHOT`
 
 import mill._
 import mill.define.Command
@@ -11,8 +8,8 @@ import mill.api.Result
 import de.tobiasroeser.mill.vaadin._
 
 object Deps {
-  def springBootVersion = "2.7.8"
-  def vaadinVersion = "23.3.12"
+  def springBootVersion = "3.2.1"
+  def vaadinVersion = "24.3.3"
 
   val springBootStarterValidation = ivy"org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
   val vaadin = ivy"com.vaadin:vaadin:${vaadinVersion}"
@@ -54,19 +51,15 @@ def validateCleanFrontend(): Command[Unit] = T.command {
 }
 
 val filesPrepare = Seq(
-  os.sub / "types.d.ts",
-  os.sub / "tsconfig.json",
-  os.sub / "package-lock.json",
-  os.sub / "vite.generated.ts",
   os.sub / "frontend" / "generated" / "vaadin-featureflags.ts",
   os.sub / "frontend" / "generated" / "vite-devmode.ts",
   os.sub / "frontend" / "generated" / "jar-resources" / "comboBoxConnector.js",
   os.sub / "frontend" / "generated" / "jar-resources" / "index.js",
   os.sub / "frontend" / "generated" / "jar-resources" / "index.d.ts",
-  os.sub / "frontend" / "generated" / "jar-resources" / "FlowClient.js",
   os.sub / "frontend" / "generated" / "jar-resources" / "Flow.js",
   os.sub / "frontend" / "generated" / "jar-resources" / "Flow.js.map",
   os.sub / "frontend" / "generated" / "jar-resources" / "Flow.d.ts",
+  os.sub / "frontend" / "generated" / "jar-resources" / "FlowClient.js",
   os.sub / "frontend" / "generated" / "jar-resources" / "FlowClient.d.ts",
   os.sub / "frontend" / "generated" / "jar-resources" / "vaadin-dev-tools.d.ts",
   os.sub / "frontend" / "generated" / "jar-resources" / "vaadin-dev-tools.js",
@@ -97,12 +90,10 @@ def validatePrepareFrontend(): Command[Unit] = T.command {
     base / "target" / "classes" / "META-INF" / "VAADIN" / "config" / "flow-build-info.json" ->
       s"""{
          |  "productionMode": false,
-         |  "useDeprecatedV14Bootstrapping": false,
          |  "eagerServerLoad": false,
          |  "npmFolder": "${base}",
-         |  "node.version": "v16.16.0",
+         |  "node.version": "v20.10.0",
          |  "node.download.root": "https://nodejs.org/dist/",
-         |  "generatedFolder": "${base}/target/frontend",
          |  "frontendFolder": "${base}/frontend",
          |  "connect.javaSourceFolder": "${base}/src/main/java",
          |  "javaResourceFolder": "${base}/src/main/resources",
@@ -110,6 +101,7 @@ def validatePrepareFrontend(): Command[Unit] = T.command {
          |  "connect.openApiFile": "${base}/target/generated-resources/openapi.json",
          |  "project.frontend.generated": "${base}/frontend/generated",
          |  "pnpm.enable": false,
+         |  "bun.enable": false,
          |  "require.home.node": false,
          |  "build.folder": "target"
          |}""".stripMargin

@@ -41,13 +41,13 @@ trait Deps {
 object Deps_0_11 extends Deps {
   override def millVersion = "0.11.0" // scala-steward:off
   override def millPlatform = "0.11"
-  override def testWithMill = Seq(millVersion)
+  override def testWithMill = Seq("0.11.7", millVersion)
   override def osLib = ivy"com.lihaoyi::os-lib:0.9.1" // scala-steward:off
 }
 object Deps_0_10 extends Deps {
   override def millVersion = "0.10.0" // scala-steward:off
   override def millPlatform = "0.10"
-  override def testWithMill = Seq("0.10.11", millVersion)
+  override def testWithMill = Seq("0.10.15", millVersion)
   override def osLib = ivy"com.lihaoyi::os-lib:0.8.0" // scala-steward:off
 }
 
@@ -222,7 +222,12 @@ trait ItestCross extends MillIntegrationTestModule with Cross.Module[String] {
             TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
             TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
           )
-        case _ => Seq()
+        case _ => Seq(
+          TestInvocation.Targets(Seq("-d", "v.vaadinPrepareFrontend")),
+          TestInvocation.Targets(Seq("-d", "validatePrepareFrontend")),
+          TestInvocation.Targets(Seq("-d", "v.vaadinBuildFrontend")),
+          TestInvocation.Targets(Seq("-d", "validateBuildFrontend"))
+        )
       })
     }
 
@@ -258,7 +263,8 @@ trait ItestCross extends MillIntegrationTestModule with Cross.Module[String] {
   def generatedSharedSrc = T {
     os.write(
       T.dest / "shared.sc",
-      s"""import $$ivy.`org.scoverage::scalac-scoverage-runtime:${deps.scoverageVersion}`
+      s"""import $$file.plugins
+         |import $$ivy.`org.scoverage::scalac-scoverage-runtime:${deps.scoverageVersion}`
          |import $$file.helper
          |""".stripMargin
     )

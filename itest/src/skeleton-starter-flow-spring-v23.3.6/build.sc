@@ -1,7 +1,4 @@
-import $file.plugins
 import $file.shared
-
-//import $ivy.`de.tototec::de.tobiasroeser.mill.vaadin::0.0.1-SNAPSHOT`
 
 import mill._
 import mill.define.Command
