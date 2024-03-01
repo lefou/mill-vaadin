@@ -2,10 +2,10 @@
 import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.7.1`
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:`
+import mill.define.Cross
 
 // imports
 import mill.api.Loose
-import mill.define.Sources
 
 import de.tobiasroeser.mill.integrationtest._
 import de.tobiasroeser.mill.vcs.version.VcsVersion
@@ -55,9 +55,10 @@ val millApiVersions = Seq(Deps_0_11, Deps_0_10).map(x => x.millPlatform -> x)
 
 val millItestVersions = millApiVersions.flatMap { case (_, d) => d.testWithMill.map(_ -> d) }
 
-val baseDir = build.millSourcePath
+lazy val baseDir = build.millSourcePath
 
 trait MillVaadinModule extends ScalaModule with PublishModule with ScoverageModule {
+
   def deps: Deps
 
   override def scalaVersion: T[String] = T(deps.scalaVersion)
@@ -79,15 +80,18 @@ trait MillVaadinModule extends ScalaModule with PublishModule with ScoverageModu
   }
 
   override def skipIdea: Boolean = millApiVersions.head._2.scalaVersion != deps.scalaVersion
+  override lazy val scoverage: ScoverageData = new MyScoverageData {}
+  trait MyScoverageData extends ScoverageData {
+    override def skipIdea: Boolean = true
+  }
 }
 
-object main extends Cross[MainCross](millApiVersions.map(_._1): _*)
-class MainCross(val millPlatform: String) extends MillVaadinModule { vaadin =>
+object main extends Cross[MainCross](millApiVersions.map(_._1))
+trait MainCross extends MillVaadinModule with Cross.Module[String] { vaadin =>
+  val millPlatform = crossValue
   override def deps: Deps = millApiVersions.toMap.apply(millPlatform)
 
-  override def millSourcePath: os.Path = super.millSourcePath / os.up
-
-  override def sources: Sources = T.sources {
+  override def sources: T[Seq[PathRef]] = T.sources {
     super.sources() ++
       ZincWorkerUtil.versionRanges(millPlatform, millApiVersions.map(_._1))
         .map(p => PathRef(millSourcePath / s"src-${p}"))
@@ -136,7 +140,7 @@ class MainCross(val millPlatform: String) extends MillVaadinModule { vaadin =>
     deps.millScalalib
   )
 
-  object test extends Tests with TestModule.ScalaTest {
+  object test extends ScalaTests with TestModule.ScalaTest {
     override def ivyDeps = Agg(
       deps.scalaTest
     )
@@ -184,21 +188,17 @@ class MainCross(val millPlatform: String) extends MillVaadinModule { vaadin =>
 
 }
 
-object itest extends Cross[ItestCross](millItestVersions.map(_._1): _*) with TaskModule {
-  override def defaultCommandName(): String = "test"
-  def test(args: String*) = millModuleDirectChildren.collect { case m: ItestCross => m }.head.test(args: _*)
-}
-class ItestCross(millItestVersion: String) extends MillIntegrationTestModule {
+object itest extends Cross[ItestCross](millItestVersions.map(_._1))
+trait ItestCross extends MillIntegrationTestModule with Cross.Module[String] {
+  val millItestVersion = crossValue
 
   val deps: Deps = millItestVersions.toMap.apply(millItestVersion)
   val mainModule = main(deps.millPlatform)
 
-  override def millSourcePath: os.Path = super.millSourcePath / os.up
-
-  override def sources: Sources = T.sources(
-    millSourcePath / s"src-${millItestVersion}",
-    millSourcePath / s"src-${deps.millPlatform}",
-    millSourcePath / "src"
+  override def sources: T[Seq[PathRef]] = T.sources(
+    this.millSourcePath / s"src-${millItestVersion}",
+    this.millSourcePath / s"src-${deps.millPlatform}",
+    this.millSourcePath / "src"
   )
 
   override def millTestVersion = millItestVersion
@@ -229,8 +229,7 @@ class ItestCross(millItestVersion: String) extends MillIntegrationTestModule {
   def useScoverageJars: T[Boolean] = false
 
   // Use scoverage enhanced jars to collect coverage data while running tests
-  override def temporaryIvyModulesDetails
-      : Task.Sequence[(PathRef, (PathRef, (PathRef, (PathRef, (PathRef, Artifact)))))] =
+  override def temporaryIvyModulesDetails: Task[Seq[(PathRef, (PathRef, (PathRef, (PathRef, (PathRef, Artifact)))))]] =
     Target.traverse(temporaryIvyModules) { p =>
       val jar = p match {
         case p: ScoverageModule => p.scoverage.jar
@@ -240,7 +239,7 @@ class ItestCross(millItestVersion: String) extends MillIntegrationTestModule {
     }
 
   // Use scoverage enhanced jars to collect coverage data while running tests
-  override def pluginUnderTestDetails: Task.Sequence[(PathRef, (PathRef, (PathRef, (PathRef, (PathRef, Artifact)))))] =
+  override def pluginUnderTestDetails: Task[Seq[(PathRef, (PathRef, (PathRef, (PathRef, (PathRef, Artifact)))))]] =
     Target.traverse(pluginsUnderTest) { p =>
       val jar = p match {
         case p: ScoverageModule => p.scoverage.jar
@@ -273,7 +272,7 @@ object P extends Module {
    * Update the millw script.
    */
   def millw() = T.command {
-    val target = mill.modules.Util.download("https://raw.githubusercontent.com/lefou/millw/master/millw")
+    val target = mill.util.Util.download("https://raw.githubusercontent.com/lefou/millw/master/millw")
     val millw = baseDir / "millw"
     os.copy.over(target.path, millw)
     os.perms.set(millw, os.perms(millw) + java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE)
