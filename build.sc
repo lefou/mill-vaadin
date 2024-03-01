@@ -19,10 +19,10 @@ import mill.scalalib.publish._
 trait Deps {
   def millPlatform: String
   def millVersion: String
-  def scalaVersion: String = "2.13.12"
+  def scalaVersion: String = "2.13.13"
   def testWithMill: Seq[String]
 
-  val vaadinFlowVersion = "23.3.12"
+  val vaadinFlowVersion = "23.3.29"
 
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
   val millMainApi = ivy"com.lihaoyi::mill-main-api:${millVersion}"
@@ -30,8 +30,8 @@ trait Deps {
   val millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
   def osLib: Dep
   val reflections = ivy"org.reflections:reflections:0.10.2"
-  val scalaTest = ivy"org.scalatest::scalatest:3.2.16"
-  val scoverageVersion = "2.0.11"
+  val scalaTest = ivy"org.scalatest::scalatest:3.2.17"
+  val scoverageVersion = "2.1.0"
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
   val slf4jSimple = ivy"org.slf4j:slf4j-simple:1.7.25"
   val utilsFunctional = ivy"de.tototec:de.tototec.utils.functional:2.0.1"
