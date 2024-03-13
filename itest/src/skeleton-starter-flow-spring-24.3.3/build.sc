@@ -1,11 +1,12 @@
 import $file.shared
-
 import mill._
 import mill.define.Command
 import mill.scalalib._
 import mill.api.Result
-
 import de.tobiasroeser.mill.vaadin._
+import mill.main.Tasks
+
+import scala.util.chaining._
 
 object Deps {
   def springBootVersion = "3.2.1"
@@ -14,19 +15,44 @@ object Deps {
   val springBootStarterValidation = ivy"org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
   val vaadin = ivy"com.vaadin:vaadin:${vaadinVersion}"
   val vaadinSpringBootStarter = ivy"com.vaadin:vaadin-spring-boot-starter:${vaadinVersion}"
+  val springBootDevtools = ivy"org.springframework.boot:spring-boot-devtools:${springBootVersion}"
 }
 
-object v extends MavenModule with VaadinModule {
+object v extends MavenModule with VaadinModule with ScalaModule {
   override def millSourcePath = super.millSourcePath / os.up
+  override def vaadinVersion = Deps.vaadinVersion
+  def scalaVersion = "2.13.13"
   override def ivyDeps: T[Agg[Dep]] = Agg(
     Deps.vaadin,
     Deps.vaadinSpringBootStarter,
-    Deps.springBootStarterValidation
+    Deps.springBootStarterValidation,
+    Deps.springBootDevtools
   )
+  def materializePathRefSeq(dest: Task[String] = T.task { "" }, targets: Tasks[Seq[PathRef]]) = T.command {
+    val destPath = dest().pipe { t =>
+      if (t == null || t.trim().isEmpty()) {
+        T.dest
+      } else os.Path.apply(t, T.workspace)
+    }
+
+    val cp = T.sequence(targets.value)().flatten
+    var seen = Set.empty[String]
+    T.log.info(s"Copying ${cp.size} paths to ${destPath} ...")
+    cp.foreach { p =>
+      val path = p.path
+      if (seen.contains(path.last)) {
+        sys.error(s"Collision detected: ${path.last}")
+      }
+      seen = seen + path.last
+      os.copy(path, destPath / path.last, createFolders = true)
+    }
+  }
 }
 
 def validateCleanFrontend(): Command[Unit] = T.command {
   val base = T.workspace
+
+  println(s"vaadin tools classpath: ${v.vaadinToolsClasspath()}")
 
   val nonExistantFiles = Seq(
     base / "vite.generated.ts"

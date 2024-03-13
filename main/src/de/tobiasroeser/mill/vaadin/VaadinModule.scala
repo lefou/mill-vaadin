@@ -3,8 +3,8 @@ package de.tobiasroeser.mill.vaadin
 import mill.{Agg, T}
 import mill.api.{Logger, PathRef, experimental}
 import mill.define.{Command, Input, Source, Task, Worker}
-import mill.scalalib.{Dep, DepSyntax, JavaModule}
-import de.tobiasroeser.mill.vaadin.worker.{MillVaadinConfig, PreparedFrontend, VaadinToolsConfig, VaadinToolsWorker}
+import mill.scalalib.{Dep, DepSyntax}
+import de.tobiasroeser.mill.vaadin.worker.{MillVaadinConfig, VaadinToolsWorker}
 import os.Path
 
 import java.net.{URL, URLClassLoader}
@@ -14,6 +14,7 @@ trait VaadinModule extends VaadinModulePlatform {
   private val buildPath = millSourcePath / "target"
 
   def vaadinFrontend: Source = T.source(millSourcePath / "frontend")
+  def vaadinVersion: T[String]
 
   private def vaadinBuildPath: T[PathRef] = T.persistent {
     val dest = buildPath
@@ -39,7 +40,9 @@ trait VaadinModule extends VaadinModulePlatform {
   def millVaadinConfig(prodMode: Task[Boolean]): Task[MillVaadinConfig] = T.task {
     val frontend = vaadinFrontend().path
     val res = resources().map(_.path)
-    if (res.size != 1) { T.log.error(s"Not exactly one resource location defined. Using just the first: ${res.headOption.getOrElse("")}") }
+    if (res.size != 1) {
+      T.log.error(s"Not exactly one resource location defined. Using just the first: ${res.headOption.getOrElse("")}")
+    }
     val dest = vaadinBuildPath().path
     val config = new MillVaadinConfig {
       override val compatTargetDir: Path = dest
@@ -91,47 +94,46 @@ trait VaadinModule extends VaadinModulePlatform {
     VaadinResult(classesDir = PathRef(config.vaadinBuildOutputPath), config.productionMode)
   }
 
-//  /**
-//   * The node.js version to be used when node.js is installed automatically by
-//   * Vaadin, for example `"v14.15.4"`. If `None` the Vaadin-default node version
-//   * is used.
-//   */
-//  def nodeVersion: T[Option[String]] = None
-
   def vaadinProductionMode: Input[Boolean] = T.input {
     Option(sys.props("vaadin.productionMode")).exists(p => p == "true")
   }
 
   override def vaadinToolsIvyDeps: T[Agg[Dep]] = T {
-    Agg.from(Versions.workerIvyDeps.map(d => ivy"${d}"))
+    val version = vaadinVersion()
+    val major = version.takeWhile(_.isDigit)
+
+    Agg.from(
+      Versions.toMap(s"workerIvyDeps${major}").split("[,]").map(d => ivy"${d.trim()}").toSeq
+    ) ++
+      Agg(
+        // this seems redundant, since the worker itself already depends on this dependency, but that way,
+        // we ensure we always use the newer of the both versions used at plugin-compile-time and at plugin-runtime
+        ivy"com.vaadin:flow-plugin-base:${version}"
+      )
   }
 
   def vaadinToolsWorker: Worker[VaadinToolsWorker] = T.worker {
-//    val workerDir = generatorWorkDir().path
-
-    val cl =
+    val classLoader =
       new URLClassLoader(
         vaadinToolsClasspath().map(_.path.toIO.toURI().toURL()).iterator.toArray[URL],
         getClass().getClassLoader()
       )
-    val className =
+    T.log.debug(s"classLoader: ${classLoader}")
+    val implClassName =
       classOf[VaadinToolsWorker].getPackage().getName() + ".impl." + classOf[VaadinToolsWorker].getSimpleName() + "Impl"
-    val impl = cl.loadClass(className)
-    val ctr = impl.getConstructor()
-    val worker = ctr.newInstance().asInstanceOf[VaadinToolsWorker]
-    if (worker.getClass().getClassLoader() != cl) {
-      T.ctx()
-        .log
-        .error("""Worker not loaded from worker classloader.
-                 |You should not add the mill-vaadin-worker JAR to the mill build classpath""".stripMargin)
+    val implClass = classLoader.loadClass(implClassName)
+    val worker = implClass.getConstructor().newInstance().asInstanceOf[VaadinToolsWorker]
+    if (worker.getClass().getClassLoader() != classLoader) {
+      T.log.error(
+        """Worker not loaded from worker classloader.
+          |You should not add the mill-vaadin-worker JAR to the mill build classpath""".stripMargin
+      )
     }
     if (worker.getClass().getClassLoader() == classOf[VaadinToolsWorker].getClassLoader()) {
-      T.ctx().log.error("Worker classloader used to load interface and implementation")
+      T.log.error("Worker classloader used to load interface and implementation")
     }
     worker
   }
-
-//  def vaadinToolsDebug: T[Boolean] = T { true }
 
   def vaadinInputLocalClasspath: T[Seq[PathRef]] = super.localClasspath
 

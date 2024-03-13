@@ -18,6 +18,7 @@ object Deps {
 
 object v extends MavenModule with VaadinModule {
   override def millSourcePath = super.millSourcePath / os.up
+  override def vaadinVersion = Deps.vaadinVersion
   override def ivyDeps: T[Agg[Dep]] = Agg(
     Deps.vaadin,
     Deps.vaadinSpringBootStarter,
@@ -27,6 +28,8 @@ object v extends MavenModule with VaadinModule {
 
 def validateCleanFrontend(): Command[Unit] = T.command {
   val base = T.workspace
+
+  println(s"vaadin tools classpath: ${v.vaadinToolsClasspath()}")
 
   val nonExistantFiles = Seq(
     base / "vite.generated.ts"

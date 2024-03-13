@@ -1,5 +1,3 @@
-import $ivy.`de.tototec:de.tobiasroeser.lambdatest:0.7.1`
-
 import de.tobiasroeser.lambdatest
 
 def checkNonexistantFile(f: os.Path): Option[String] = Option(f)
