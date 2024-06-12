@@ -42,7 +42,7 @@ trait MillVaadinConfig {
     "resourceOutputPath" -> resourceOutputPath,
     "resourcePath" -> resourcePath,
     "vaadinBuildOutputPath" -> vaadinBuildOutputPath,
-    "webpackOutPath" -> webpackOutPath,
+    "webpackOutPath" -> webpackOutPath
   ).mkString(
     s"""${getClass.getSimpleName}(
        |  """.stripMargin,
