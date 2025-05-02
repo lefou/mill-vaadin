@@ -40,8 +40,7 @@ dependencies:
     version: 23.2.0
   '@vaadin/bundles':
     specifier: 23.2.0
-    version: >-
-      23.2.0(@polymer/iron-icon@3.0.1)(@polymer/iron-iconset-svg@3.0.1)(@polymer/iron-meta@3.0.1)(@polymer/polymer@3.5.1)(@vaadin/accordion@23.2.0)(@vaadin/app-layout@23.2.0)(@vaadin/avatar-group@23.2.0)(@vaadin/avatar@23.2.0)(@vaadin/board@23.2.0)(@vaadin/button@23.2.0)(@vaadin/charts@23.2.0)(@vaadin/checkbox-group@23.2.0)(@vaadin/checkbox@23.2.0)(@vaadin/combo-box@23.2.0)(@vaadin/component-base@23.2.0)(@vaadin/confirm-dialog@23.2.0)(@vaadin/context-menu@23.2.0)(@vaadin/cookie-consent@23.2.0)(@vaadin/crud@23.2.0)(@vaadin/custom-field@23.2.0)(@vaadin/date-picker@23.2.0)(@vaadin/date-time-picker@23.2.0)(@vaadin/details@23.2.0)(@vaadin/dialog@23.2.0)(@vaadin/email-field@23.2.0)(@vaadin/field-base@23.2.0)(@vaadin/field-highlighter@23.2.0)(@vaadin/form-layout@23.2.0)(@vaadin/grid-pro@23.2.0)(@vaadin/grid@23.2.0)(@vaadin/horizontal-layout@23.2.0)(@vaadin/icon@23.2.0)(@vaadin/icons@23.2.0)(@vaadin/input-container@23.2.0)(@vaadin/integer-field@23.2.0)(@vaadin/item@23.2.0)(@vaadin/list-box@23.2.0)(@vaadin/lit-renderer@23.2.0)(@vaadin/login@23.2.0)(@vaadin/map@23.2.0)(@vaadin/menu-bar@23.2.0)(@vaadin/message-input@23.2.0)(@vaadin/message-list@23.2.0)(@vaadin/notification@23.2.0)(@vaadin/number-field@23.2.0)(@vaadin/password-field@23.2.0)(@vaadin/polymer-legacy-adapter@23.2.0)(@vaadin/progress-bar@23.2.0)(@vaadin/radio-group@23.2.0)(@vaadin/rich-text-editor@23.2.0)(@vaadin/scroller@23.2.0)(@vaadin/select@23.2.0)(@vaadin/split-layout@23.2.0)(@vaadin/tabs@23.2.0)(@vaadin/text-area@23.2.0)(@vaadin/text-field@23.2.0)(@vaadin/time-picker@23.2.0)(@vaadin/upload@23.2.0)(@vaadin/vaadin-development-mode-detector@2.0.5)(@vaadin/vaadin-list-mixin@23.2.0)(@vaadin/vaadin-lumo-styles@23.2.0)(@vaadin/vaadin-overlay@23.2.0)(@vaadin/vaadin-themable-mixin@23.2.0)(@vaadin/vaadin-usage-statistics@2.1.2)(@vaadin/vertical-layout@23.2.0)(@vaadin/virtual-list@23.2.0)(lit@2.3.0)
+    version: 23.2.0(@polymer/iron-icon@3.0.1)(@polymer/iron-iconset-svg@3.0.1)(@polymer/iron-meta@3.0.1)(@polymer/polymer@3.5.1)(@vaadin/accordion@23.2.0)(@vaadin/app-layout@23.2.0)(@vaadin/avatar-group@23.2.0)(@vaadin/avatar@23.2.0)(@vaadin/board@23.2.0)(@vaadin/button@23.2.0)(@vaadin/charts@23.2.0)(@vaadin/checkbox-group@23.2.0)(@vaadin/checkbox@23.2.0)(@vaadin/combo-box@23.2.0)(@vaadin/component-base@23.2.0)(@vaadin/confirm-dialog@23.2.0)(@vaadin/context-menu@23.2.0)(@vaadin/cookie-consent@23.2.0)(@vaadin/crud@23.2.0)(@vaadin/custom-field@23.2.0)(@vaadin/date-picker@23.2.0)(@vaadin/date-time-picker@23.2.0)(@vaadin/details@23.2.0)(@vaadin/dialog@23.2.0)(@vaadin/email-field@23.2.0)(@vaadin/field-base@23.2.0)(@vaadin/field-highlighter@23.2.0)(@vaadin/form-layout@23.2.0)(@vaadin/grid-pro@23.2.0)(@vaadin/grid@23.2.0)(@vaadin/horizontal-layout@23.2.0)(@vaadin/icon@23.2.0)(@vaadin/icons@23.2.0)(@vaadin/input-container@23.2.0)(@vaadin/integer-field@23.2.0)(@vaadin/item@23.2.0)(@vaadin/list-box@23.2.0)(@vaadin/lit-renderer@23.2.0)(@vaadin/login@23.2.0)(@vaadin/map@23.2.0)(@vaadin/menu-bar@23.2.0)(@vaadin/message-input@23.2.0)(@vaadin/message-list@23.2.0)(@vaadin/notification@23.2.0)(@vaadin/number-field@23.2.0)(@vaadin/password-field@23.2.0)(@vaadin/polymer-legacy-adapter@23.2.0)(@vaadin/progress-bar@23.2.0)(@vaadin/radio-group@23.2.0)(@vaadin/rich-text-editor@23.2.0)(@vaadin/scroller@23.2.0)(@vaadin/select@23.2.0)(@vaadin/split-layout@23.2.0)(@vaadin/tabs@23.2.0)(@vaadin/text-area@23.2.0)(@vaadin/text-field@23.2.0)(@vaadin/time-picker@23.2.0)(@vaadin/upload@23.2.0)(@vaadin/vaadin-development-mode-detector@2.0.5)(@vaadin/vaadin-list-mixin@23.2.0)(@vaadin/vaadin-lumo-styles@23.2.0)(@vaadin/vaadin-overlay@23.2.0)(@vaadin/vaadin-themable-mixin@23.2.0)(@vaadin/vaadin-usage-statistics@2.1.2)(@vaadin/vertical-layout@23.2.0)(@vaadin/virtual-list@23.2.0)(lit@2.3.0)
   '@vaadin/button':
     specifier: 23.2.0
     version: 23.2.0
@@ -387,11 +386,11 @@ devDependencies:
     specifier: 4.7.4
     version: 4.7.4
   vite:
-    specifier: v3.2.7
-    version: 3.2.7
+    specifier: v3.2.10
+    version: 3.2.10
   vite-plugin-checker:
     specifier: 0.4.9
-    version: 0.4.9(vite@3.2.7)
+    version: 0.4.9(vite@3.2.10)
   workbox-build:
     specifier: 6.5.0
     version: 6.5.0
@@ -5042,7 +5041,7 @@ packages:
       punycode: 2.1.1
     dev: true
 
-  /vite-plugin-checker@0.4.9(vite@3.2.7):
+  /vite-plugin-checker@0.4.9(vite@3.2.10):
     resolution: {integrity: sha512-Oii9mTum8bqZovWejcR739kCqST32oG6LdB/XMdwcLVzmcjq0gf1iVDIedVzJJ7t6GLQAYgjNwvB0fuMiT3tlg==}
     hasBin: true
     peerDependencies:
@@ -5059,15 +5058,15 @@ packages:
       npm-run-path: 4.0.1
       strip-ansi: 6.0.1
       tiny-invariant: 1.2.0
-      vite: 3.2.7
+      vite: 3.2.10
       vscode-languageclient: 7.0.0
       vscode-languageserver: 7.0.0
       vscode-languageserver-textdocument: 1.0.7
       vscode-uri: 3.0.3
     dev: true
 
-  /vite@3.2.7:
-    resolution: {integrity: sha512-29pdXjk49xAP0QBr0xXqu2s5jiQIXNvE/xwd0vUizYT2Hzqe4BksNNoWllFVXJf4eLZ+UlVQmXfB4lWrc+t18g==}
+  /vite@3.2.10:
+    resolution: {integrity: sha512-Dx3olBo/ODNiMVk/cA5Yft9Ws+snLOXrhLtrI3F4XLt4syz2Yg8fayZMWScPKoz12v5BUv7VEmQHnsfpY80fYw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
